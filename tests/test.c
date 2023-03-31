@@ -99,10 +99,10 @@ int test_run_file(char* file) {
   int read_count = 0;
   while((read_count = read(pipefd[0], rd, 128)) != 0) {
     if(result.end - result.start == total_read_count + read_count) {
+    success:
       if(memcmp(data + result.start + total_read_count, rd, read_count) != 0) {
         goto fail;
       }
-      printf("SUCCESS\n");
       total_read_count += read_count;
       break;
     }else if(result.end - result.start < total_read_count + read_count) {
@@ -119,6 +119,11 @@ int test_run_file(char* file) {
   }
   if(total_read_count != result.end - result.start) {
     goto fail;
+  }else {
+    if(memcmp(data + result.start + total_read_count, rd, read_count) != 0) {
+      goto fail;
+    }
+    printf("SUCCESS\n");
   }
   close(pipefd[0]);
   
