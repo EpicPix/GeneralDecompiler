@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
 
 typedef struct section {
   int start;
@@ -68,7 +69,20 @@ int test_run_file(char* file) {
   int tmp = open("./tests/test.tmp", O_RDWR | O_CREAT, 0700);
   write(tmp, in, in_length);
   
-  char* args[3] = {"./out/decompiler", "./tests/test.tmp", NULL};
+  int pre_last_dot = 0;
+  int last_dot = 0;
+  int filename_len = strlen(file);
+  for(int i = 0; i<filename_len; i++) {
+    if(file[i] == '.') {
+      pre_last_dot = last_dot;
+      last_dot = i;
+    }
+  }
+  char* arch_type = alloca(last_dot - pre_last_dot);
+  memcpy(arch_type, file + pre_last_dot + 1, last_dot - pre_last_dot - 1);
+  arch_type[last_dot - pre_last_dot - 1] = '\0';
+
+  char* args[4] = {"./out/decompiler", arch_type, "./tests/test.tmp", NULL};
   
   int pipefd[2];
   pipe(pipefd);
@@ -103,7 +117,6 @@ int test_run_file(char* file) {
     }
     total_read_count += read_count;
   }
-  printf("%d %d\n", total_read_count, result.end - result.start);
   if(total_read_count != result.end - result.start) {
     goto fail;
   }

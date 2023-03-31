@@ -1,5 +1,5 @@
-SRC = $(shell find src -name "*.c")
-TESTS := $(shell find tests -name '*.test')
+SRC := $(shell find src -name "*.c")
+TESTS := $(shell find tests -name '*.*.test')
 
 all: clean out/decompiler test
 
