@@ -20,4 +20,4 @@ jobs:
           platform: x64
       
       - name: Run Tests
-        run: make test
+        run: make clean test

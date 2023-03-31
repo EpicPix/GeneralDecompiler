@@ -4,6 +4,7 @@ TESTS := $(shell find tests -name '*.test')
 all: clean out/decompiler test
 
 clean:
+	mkdir -p out
 	rm -rf out/*
 
 out/decompiler: $(SRC)
