@@ -17,8 +17,7 @@ typedef struct section {
 static inline int hex_get_num(char v) {
   if(v >= '0' && v <= '9') return v - '0';
   if(v >= 'a' && v <= 'f') return v - 'a' + 0xa;
-  if(v >= 'A' && v <= 'F') return v - 'A' + 0xa;
-  return 0;
+  return (v - 'A' + 0xa) & 0xf;
 }
 
 int test_run_file(char* file) {
