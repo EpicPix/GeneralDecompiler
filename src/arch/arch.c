@@ -4,7 +4,7 @@
 
 extern const arch_info arch_testing;
 
-const arch_info* arch_get_info(const char* name) {
+const arch_info* arch_get(const char* name) {
   if(strcmp(name, "testing") == 0) return &arch_testing;
   return NULL;
 }

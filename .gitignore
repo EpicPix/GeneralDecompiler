@@ -1,2 +1,6 @@
 out/
 *.out*
+local/
+.fleet/
+.vscode/
+.idea/
