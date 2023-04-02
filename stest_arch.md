@@ -19,8 +19,8 @@ These will be the instructions:
 - [`add`](#add) (`0bxxx00001`)
 - [`sub`](#sub) (`0bxxx00010`)
 - [`mul`](#mul) (`0bxxx00011`)
-- [`div`](#div) (`0bxxx00100`)
-- [`mod`](#mod) (`0bxxx00101`)
+- not defined (`0bxxx00100`)
+- not defined (`0bxxx00101`)
 - [`push`](#push) (`0bxxx00110`)
 - [`drop`](#drop) (`0bxxx00111`)
 - [`dup`](#dup) (`0bxxx01000`)
@@ -54,21 +54,49 @@ These will be the instructions:
 
 Opcode: `0bxxx00001`
 
+Stack: `a, b -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop()
+v = a + b
+push(v)
+```
+
 #### `sub`
 
 Opcode: `0bxxx00010`
+
+Stack: `a, b -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop()
+v = a - b
+push(v)
+```
 
 #### `mul`
 
 Opcode: `0bxxx00011`
 
-#### `div`
+Stack: `a, b -> c`
 
-Opcode: `0bxxx00100`
+`pop()` and `push()` are set by the size from the instruction format.
 
-#### `mod`
-
-Opcode: `0bxxx00101`
+Operation:
+```
+a = pop()
+b = pop()
+v = a * b
+push(v)
+```
 
 #### `push`
 
