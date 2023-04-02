@@ -21,6 +21,7 @@ Currently the only prefix is a memory prefix, which lets the next instruction re
 Prefix: `0b0010xxyy`
 
 `xx` is the size of the pointer size
+
 `yy` is the size of the data size
 
 ## Instructions
@@ -188,11 +189,37 @@ Opcode: `0bxx001001`
 
 This instruction requires the [`memory`](#memory) prefix.
 
+Description:
+
+Takes a pointer from the stack, and gets the data from that pointer and pushes it on the stack.
+
+Stack `ptr -> val`
+
+Operation:
+```
+ptr = pop(memory_prefix.pointer_size)
+val = *ptr
+push(val, memory_prefix.data_size)
+```
+
 #### `writeptr`
 
 Opcode: `0bxx001010`
 
 This instruction requires the [`memory`](#memory) prefix.
+
+Description:
+
+Takes a pointer from the stack and a value, and sets the data at that pointer to the value.
+
+Stack `ptr, val -> `
+
+Operation:
+```
+ptr = pop(memory_prefix.pointer_size)
+val = pop(memory_prefix.data_size)
+*ptr = val
+```
 
 #### `and`
 
