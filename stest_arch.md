@@ -1,5 +1,7 @@
 # (Stack) Test Arch
 
+This architecture is little endian, any immediate or operand that is multi-byte will be written in ltitle-endian encoding.
+
 ## Instruction Format
 
 Bit sized operations will have the operand size stored in the top 2 bits of the opcode. There are 4 different sizes:
@@ -13,6 +15,7 @@ Bit sized operations will have the operand size stored in the top 2 bits of the 
 There will be some basic instructions stored in the first 5 bits of the opcode, which makes the maximum count of instruction types only 32, which is enough for this architecture.
 
 These will be the instructions:
+- not defined (`0bxxx00000`)
 - [`add`](#add) (`0bxxx00001`)
 - [`sub`](#sub) (`0bxxx00010`)
 - [`mul`](#mul) (`0bxxx00011`)
