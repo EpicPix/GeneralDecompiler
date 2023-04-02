@@ -10,49 +10,62 @@ Bit sized operations will have the operand size stored in the top 2 bits of the 
 - 32 bit (`0b10xxxxxxx`)
 - 64 bit (`0b11xxxxxxx`)
 
+## Instruction Prefixes
+
+A prefix is defined when `0bxx1xxxxx` matches.
+
+Currently the only prefix is a memory prefix, which lets the next instruction read/write from memory at a certain pointer.
+
+### `memory`
+
+Prefix: `0b0010xxyy`
+
+`xx` is the size of the pointer size
+`yy` is the size of the data size
+
 ## Instructions
 
 There will be some basic instructions stored in the first 5 bits of the opcode, which makes the maximum count of instruction types only 32, which is enough for this architecture.
 
 These will be the instructions:
-- not defined (`0bxxx00000`)
-- [`add`](#add) (`0bxxx00001`)
-- [`sub`](#sub) (`0bxxx00010`)
-- [`mul`](#mul) (`0bxxx00011`)
-- not defined (`0bxxx00100`)
-- not defined (`0bxxx00101`)
-- [`push`](#push) (`0bxxx00110`)
-- [`drop`](#drop) (`0bxxx00111`)
-- [`dup`](#dup) (`0bxxx01000`)
-- [`readptr`](#readptr) (`0bxxx01001`)
-- [`writeptr`](#writeptr) (`0bxxx01010`)
-- [`and`](#and) (`0bxxx01011`)
-- [`not`](#not) (`0bxxx01100`)
-- [`or`](#or) (`0bxxx01101`)
-- [`xor`](#xor) (`0bxxx01110`)
-- [`tob`](#tob) (`0bxxx01111`)
-- [`jmp`](#jmp) (`0bxxx10000`)
-- [`je`](#je) (`0bxxx10001`)
-- [`jne`](#jne) (`0bxxx10010`)
-- [`jle`](#jle) (`0bxxx10011`)
-- [`jlt`](#jlt) (`0bxxx10100`)
-- [`jbe`](#jbe) (`0bxxx10101`)
-- [`jbt`](#jbt) (`0bxxx10110`)
-- [`tow`](#tow) (`0bxxx10111`)
-- [`tod`](#tod) (`0bxxx11000`)
-- [`toq`](#toq) (`0bxxx11001`)
-- [`shl`](#shl) (`0bxxx11010`)
-- [`shr`](#shr) (`0bxxx11011`)
-- [`neg`](#neg) (`0bxxx11100`)
-- not defined (`0bxxx11101`)
-- not defined (`0bxxx11110`)
-- not defined (`0bxxx11111`)
+- not defined (`0bxx000000`)
+- [`add`](#add) (`0bxx000001`)
+- [`sub`](#sub) (`0bxx000010`)
+- [`mul`](#mul) (`0bxx000011`)
+- not defined (`0bxx000100`)
+- not defined (`0bxx000101`)
+- [`push`](#push) (`0bxx000110`)
+- [`drop`](#drop) (`0bxx000111`)
+- [`dup`](#dup) (`0bxx001000`)
+- [`memory`](#memory) [`readptr`](#readptr) (`0bxx001001`)
+- [`memory`](#memory) [`writeptr`](#writeptr) (`0bxx001010`)
+- [`and`](#and) (`0bxx001011`)
+- [`not`](#not) (`0bxx001100`)
+- [`or`](#or) (`0bxx001101`)
+- [`xor`](#xor) (`0bxx001110`)
+- [`tob`](#tob) (`0bxx001111`)
+- [`jmp`](#jmp) (`0bxx010000`)
+- [`je`](#je) (`0bxx010001`)
+- [`jne`](#jne) (`0bxx010010`)
+- [`jle`](#jle) (`0bxx010011`)
+- [`jlt`](#jlt) (`0bxx010100`)
+- [`jbe`](#jbe) (`0bxx010101`)
+- [`jbt`](#jbt) (`0bxx010110`)
+- [`tow`](#tow) (`0bxx010111`)
+- [`tod`](#tod) (`0bxx011000`)
+- [`toq`](#toq) (`0bxx011001`)
+- [`shl`](#shl) (`0bxx011010`)
+- [`shr`](#shr) (`0bxx011011`)
+- [`neg`](#neg) (`0bxx011100`)
+- not defined (`0bxx011101`)
+- not defined (`0bxx011110`)
+- not defined (`0bxx011111`)
 
 ### Instruction Operations
 
 #### `add`
 
-Opcode: `0bxxx00001`
+Opcode: `0bxx000001`
 
 Description:
 
@@ -72,7 +85,7 @@ push(v)
 
 #### `sub`
 
-Opcode: `0bxxx00010`
+Opcode: `0bxx000010`
 
 Description:
 
@@ -92,7 +105,7 @@ push(v)
 
 #### `mul`
 
-Opcode: `0bxxx00011`
+Opcode: `0bxx000011`
 
 Description:
 
@@ -112,7 +125,7 @@ push(v)
 
 #### `push`
 
-Opcode: `0bxxx00110`
+Opcode: `0bxx000110`
 
 Encoding:
 - `0b00x00110 imm8` - Push a 1 byte number from instruction immediate
@@ -135,7 +148,7 @@ push(imm)
 
 #### `drop`
 
-Opcode: `0bxxx00111`
+Opcode: `0bxx000111`
 
 Description:
 
@@ -152,7 +165,7 @@ pop()
 
 #### `dup`
 
-Opcode: `0bxxx01000`
+Opcode: `0bxx001000`
 
 Description:
 
@@ -171,81 +184,85 @@ push(a)
 
 #### `readptr`
 
-Opcode: `0bxxx01001`
+Opcode: `0bxx001001`
+
+This instruction requires the [`memory`](#memory) prefix.
 
 #### `writeptr`
 
-Opcode: `0bxxx01010`
+Opcode: `0bxx001010`
+
+This instruction requires the [`memory`](#memory) prefix.
 
 #### `and`
 
-Opcode: `0bxxx01011`
+Opcode: `0bxx001011`
 
 #### `not`
 
-Opcode: `0bxxx01100`
+Opcode: `0bxx001100`
 
 #### `or`
 
-Opcode: `0bxxx01101`
+Opcode: `0bxx001101`
 
 #### `xor`
 
-Opcode: `0bxxx01110`
+Opcode: `0bxx001110`
 
 #### `tob`
 
-Opcode: `0bxxx01111`
+Opcode: `0bxx001111`
 
 #### `jmp`
 
-Opcode: `0bxxx10000`
+Opcode: `0bxx010000`
 
 #### `je`
 
-Opcode: `0bxxx10001`
+Opcode: `0bxx010001`
 
 #### `jne`
 
-Opcode: `0bxxx10010`
+Opcode: `0bxx010010`
 
 #### `jle`
 
-Opcode: `0bxxx10011`
+Opcode: `0bxx010011`
 
 #### `jlt`
 
-Opcode: `0bxxx10100`
+Opcode: `0bxx010100`
 
 #### `jbe`
 
-Opcode: `0bxxx10101`
+Opcode: `0bxx010101`
 
 #### `jbt`
 
-Opcode: `0bxxx10110`
+Opcode: `0bxx010110`
 
 #### `tow`
 
-Opcode: `0bxxx10111`
+Opcode: `0bxx010111`
 
 #### `tod`
 
-Opcode: `0bxxx11000`
+Opcode: `0bxx011000`
 
 #### `toq`
 
-Opcode: `0bxxx11001`
+Opcode: `0bxx011001`
 
 #### `shl`
 
-Opcode: `0bxxx11010`
+Opcode: `0bxx011010`
 
 #### `shr`
 
-Opcode: `0bxxx11011`
+Opcode: `0bxx011011`
 
 #### `neg`
 
-Opcode: `0bxxx11100`
+Opcode: `0bxx011100`
 
