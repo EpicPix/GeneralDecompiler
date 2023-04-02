@@ -337,11 +337,45 @@ Opcode: `0bxx010000`
 
 This instruction requires the [`jump`](#jump) prefix.
 
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location
+
+Operation:
+```
+if jump.isoffset -> pc += imm
+else pc = imm
+```
+
 #### `je`
 
 Opcode: `0bxx010001`
 
 This instruction requires the [`jump`](#jump) prefix.
+
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is equal
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+a = pop()
+b = pop()
+if a == b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
 
 #### `jne`
 
@@ -349,11 +383,53 @@ Opcode: `0bxx010010`
 
 This instruction requires the [`jump`](#jump) prefix.
 
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is not equal
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+a = pop()
+b = pop()
+if a != b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
+
 #### `jle`
 
 Opcode: `0bxx010011`
 
 This instruction requires the [`jump`](#jump) prefix.
+
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is less or equal than another (signed)
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+signed a = pop()
+signed b = pop()
+if a <= b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
 
 #### `jlt`
 
@@ -361,17 +437,80 @@ Opcode: `0bxx010100`
 
 This instruction requires the [`jump`](#jump) prefix.
 
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is less than another (signed)
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+signed a = pop()
+signed b = pop()
+if a < b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
+
 #### `jbe`
 
 Opcode: `0bxx010101`
 
 This instruction requires the [`jump`](#jump) prefix.
 
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is below or equal than another (unsigned)
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+unsigned a = pop()
+unsigned b = pop()
+if a <= b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
+
 #### `jbt`
 
 Opcode: `0bxx010110`
 
 This instruction requires the [`jump`](#jump) prefix.
+
+Encoding:
+`0bxx010000 imm` - where `imm` is the size of the offset (signed)/location from the jump prefix
+
+Description:
+
+Jump by some offset or to some specific location if the value is below than another (unsigned)
+
+`pop()` is set by the size from the instruction format.
+
+Stack: `b, a -> `
+
+Operation:
+```
+unsigned a = pop()
+unsigned b = pop()
+if a < b -> {
+    if jump.isoffset -> pc += imm
+    else pc = imm
+}
+```
 
 #### `tow`
 
