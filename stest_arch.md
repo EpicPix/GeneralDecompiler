@@ -141,10 +141,10 @@ push(v)
 Opcode: `0bxx000110`
 
 Encoding:
-- `0b00x00110 imm8` - Push a 1 byte number from instruction immediate
-- `0b01x00110 imm16` - Push a 2 byte number from instruction immediate
-- `0b10x00110 imm32` - Push a 4 byte number from instruction immediate
-- `0b11x00110 imm64` - Push a 8 byte number from instruction immediate
+- `0b00000110 imm8` - Push a 1 byte number from instruction immediate
+- `0b01000110 imm16` - Push a 2 byte number from instruction immediate
+- `0b10000110 imm32` - Push a 4 byte number from instruction immediate
+- `0b11000110 imm64` - Push a 8 byte number from instruction immediate
 
 Description:
 
