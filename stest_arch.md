@@ -40,5 +40,8 @@ These will be the instructions:
 - `toq` (`0bxxx11001`)
 - `shl` (`0bxxx11010`)
 - `shr` (`0bxxx11011`)
-
+- not defined (`0bxxx11100`)
+- not defined (`0bxxx11101`)
+- not defined (`0bxxx11110`)
+- not defined (`0bxxx11111`)
 
