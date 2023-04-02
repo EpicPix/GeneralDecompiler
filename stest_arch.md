@@ -1,6 +1,4 @@
-# Test Arch
-
-This architecture is stack based.
+# (Stack) Test Arch
 
 ## Instruction Format
 
