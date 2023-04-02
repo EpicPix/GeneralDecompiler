@@ -72,7 +72,7 @@ Description:
 
 Takes two numbers from the stack, adds them together and puts the result on the stack.
 
-Stack: `a, b -> c`
+Stack: `b, a -> c`
 
 `pop()` and `push()` are set by the size from the instruction format.
 
@@ -92,7 +92,7 @@ Description:
 
 Takes two numbers from the stack, subtracts them and puts the result on the stack.
 
-Stack: `a, b -> c`
+Stack: `b, a -> c`
 
 `pop()` and `push()` are set by the size from the instruction format.
 
@@ -112,7 +112,7 @@ Description:
 
 Takes two numbers from the stack, multiplies them together and puts the result on the stack.
 
-Stack: `a, b -> c`
+Stack: `b, a -> c`
 
 `pop()` and `push()` are set by the size from the instruction format.
 
@@ -212,7 +212,7 @@ Description:
 
 Takes a pointer from the stack and a value, and sets the data at that pointer to the value.
 
-Stack `ptr, val -> `
+Stack `val, ptr -> `
 
 Operation:
 ```
