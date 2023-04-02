@@ -225,21 +225,99 @@ val = pop(memory_prefix.data_size)
 
 Opcode: `0bxx001011`
 
+Description:
+
+Takes two numbers from the stack, ANDs them together and puts the result on the stack.
+
+Stack: `b, a -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop()
+v = a & b
+push(v)
+```
+
 #### `not`
 
 Opcode: `0bxx001100`
+
+Description:
+
+Takes a number from the stack, inverts all bits and puts the result on the stack.
+
+Stack: `a -> b`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = ~a
+push(v)
+```
 
 #### `or`
 
 Opcode: `0bxx001101`
 
+Description:
+
+Takes two numbers from the stack, ORs them together and puts the result on the stack.
+
+Stack: `b, a -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop()
+v = a | b
+push(v)
+```
+
 #### `xor`
 
 Opcode: `0bxx001110`
 
+Description:
+
+Takes two numbers from the stack, XORs them together and puts the result on the stack.
+
+Stack: `b, a -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop()
+v = a ^ b
+push(v)
+```
+
 #### `tob`
 
 Opcode: `0bxx001111`
+
+Description:
+
+Takes a number from the stack, and (unsigned) casts it to the size in the instruction.
+
+Stack: `a -> b`
+
+`pop()` is set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = a & 0xff
+push(v)
+```
 
 #### `jmp`
 
@@ -273,23 +351,119 @@ Opcode: `0bxx010110`
 
 Opcode: `0bxx010111`
 
+Description:
+
+Takes a number from the stack, and (unsigned) casts it to the size in the instruction.
+
+Stack: `a -> b`
+
+`pop()` is set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = a & 0xffff
+push(v)
+```
+
 #### `tod`
 
 Opcode: `0bxx011000`
+
+Description:
+
+Takes a number from the stack, and (unsigned) casts it to the size in the instruction.
+
+Stack: `a -> b`
+
+`pop()` is set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = a & 0xffffffff
+push(v)
+```
 
 #### `toq`
 
 Opcode: `0bxx011001`
 
+Description:
+
+Takes a number from the stack, and (unsigned) casts it to the size in the instruction.
+
+Stack: `a -> b`
+
+`pop()` is set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = a & 0xffffffffffffffff
+push(v)
+```
+
 #### `shl`
 
 Opcode: `0bxx011010`
+
+Description:
+
+Takes two numbers from the stack, and shifts a number to the left by some amount.
+
+The shift count is a 1 byte value.
+
+Stack: `b, a -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop(1)
+v = a << b
+push(v)
+```
 
 #### `shr`
 
 Opcode: `0bxx011011`
 
+Description:
+
+Takes two numbers from the stack, and shifts a number to the right by some amount.
+
+The shift count is a 1 byte value.
+
+Stack: `b, a -> c`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+b = pop(1)
+v = a >> b
+push(v)
+```
+
 #### `neg`
 
 Opcode: `0bxx011100`
+
+Description:
+
+Takes a number from the stack, negates the numbers and puts it back on the stack.
+
+Stack: `a -> b`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+v = -a
+push(v)
+```
 
