@@ -1,9 +1,9 @@
 #include "arch.h"
 
-void arch_testing_disassemble(uint8_t* code, int code_length) {
+void arch_stestarch_disassemble(uint8_t* code, int code_length) {
 
 }
 
-const arch_info arch_testing = {
-    .disassemble = arch_testing_disassemble
+const arch_info arch_stestarch = {
+    .disassemble = arch_stestarch_disassemble
 };
