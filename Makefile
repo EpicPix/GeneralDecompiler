@@ -10,8 +10,8 @@ clean:
 out/decompiler: $(SRC)
 	gcc -o $@ $^ -g -O1 -Wall -Wextra -Wno-unused-parameter
 
-test_runner: tests/test.c
+out/test_runner: tests/test.c
 	gcc tests/test.c -o out/test_runner -g -O1 -Wall -Wextra -Wno-unused-parameter
 
-test: test_runner out/decompiler $(TESTS)
+test: out/test_runner out/decompiler $(TESTS)
 	out/test_runner $(TESTS)
