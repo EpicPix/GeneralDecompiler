@@ -14,15 +14,27 @@ Bit sized operations will have the operand size stored in the top 2 bits of the 
 
 A prefix is defined when `0bxx1xxxxx` matches.
 
-Currently the only prefix is a memory prefix, which lets the next instruction read/write from memory at a certain pointer.
+Currently the only prefixes are the `memory` and `jump` prefix.
 
 ### `memory`
 
 Prefix: `0b0010xxyy`
 
+This prefix is used for [`readptr`](#readptr) and [`writeptr`](#writeptr).
+
 `xx` is the size of the pointer size
 
 `yy` is the size of the data size
+
+### `jump`
+
+Prefix: `0b0011xx0y`
+
+This prefix is used for all jump instructions.
+
+`xx` is the size of the offset/location operand.
+
+`y` is indicating if the jump is an offset or a specific location, where `0` means its an offset.
 
 ## Instructions
 
@@ -45,13 +57,13 @@ These will be the instructions:
 - [`or`](#or) (`0bxx001101`)
 - [`xor`](#xor) (`0bxx001110`)
 - [`tob`](#tob) (`0bxx001111`)
-- [`jmp`](#jmp) (`0bxx010000`)
-- [`je`](#je) (`0bxx010001`)
-- [`jne`](#jne) (`0bxx010010`)
-- [`jle`](#jle) (`0bxx010011`)
-- [`jlt`](#jlt) (`0bxx010100`)
-- [`jbe`](#jbe) (`0bxx010101`)
-- [`jbt`](#jbt) (`0bxx010110`)
+- [`jump`](#jump) [`jmp`](#jmp) (`0bxx010000`)
+- [`jump`](#jump) [`je`](#je) (`0bxx010001`)
+- [`jump`](#jump) [`jne`](#jne) (`0bxx010010`)
+- [`jump`](#jump) [`jle`](#jle) (`0bxx010011`)
+- [`jump`](#jump) [`jlt`](#jlt) (`0bxx010100`)
+- [`jump`](#jump) [`jbe`](#jbe) (`0bxx010101`)
+- [`jump`](#jump) [`jbt`](#jbt) (`0bxx010110`)
 - [`tow`](#tow) (`0bxx010111`)
 - [`tod`](#tod) (`0bxx011000`)
 - [`toq`](#toq) (`0bxx011001`)
@@ -323,29 +335,43 @@ push(v)
 
 Opcode: `0bxx010000`
 
+This instruction requires the [`jump`](#jump) prefix.
+
 #### `je`
 
 Opcode: `0bxx010001`
+
+This instruction requires the [`jump`](#jump) prefix.
 
 #### `jne`
 
 Opcode: `0bxx010010`
 
+This instruction requires the [`jump`](#jump) prefix.
+
 #### `jle`
 
 Opcode: `0bxx010011`
+
+This instruction requires the [`jump`](#jump) prefix.
 
 #### `jlt`
 
 Opcode: `0bxx010100`
 
+This instruction requires the [`jump`](#jump) prefix.
+
 #### `jbe`
 
 Opcode: `0bxx010101`
 
+This instruction requires the [`jump`](#jump) prefix.
+
 #### `jbt`
 
 Opcode: `0bxx010110`
+
+This instruction requires the [`jump`](#jump) prefix.
 
 #### `tow`
 
