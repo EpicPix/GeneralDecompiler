@@ -54,6 +54,10 @@ These will be the instructions:
 
 Opcode: `0bxxx00001`
 
+Description:
+
+Takes two numbers from the stack, adds them together and puts the result on the stack.
+
 Stack: `a, b -> c`
 
 `pop()` and `push()` are set by the size from the instruction format.
@@ -69,6 +73,10 @@ push(v)
 #### `sub`
 
 Opcode: `0bxxx00010`
+
+Description:
+
+Takes two numbers from the stack, subtracts them and puts the result on the stack.
 
 Stack: `a, b -> c`
 
@@ -86,6 +94,10 @@ push(v)
 
 Opcode: `0bxxx00011`
 
+Description:
+
+Takes two numbers from the stack, multiplies them together and puts the result on the stack.
+
 Stack: `a, b -> c`
 
 `pop()` and `push()` are set by the size from the instruction format.
@@ -102,13 +114,60 @@ push(v)
 
 Opcode: `0bxxx00110`
 
+Encoding:
+- `0b00x00110 imm8` - Push a 1 byte number from instruction immediate
+- `0b01x00110 imm16` - Push a 2 byte number from instruction immediate
+- `0b10x00110 imm32` - Push a 4 byte number from instruction immediate
+- `0b11x00110 imm64` - Push a 8 byte number from instruction immediate
+
+Description:
+
+Gets the immediate from the instruction, then pushes it on the stack.
+
+Stack: ` -> imm`
+
+`push()` is set by the size from the instruction format.
+
+Operation:
+```
+push(imm)
+```
+
 #### `drop`
 
 Opcode: `0bxxx00111`
 
+Description:
+
+Takes a number from the stack and discards it.
+
+Stack: `a -> `
+
+`pop()` is set by the size from the instruction format.
+
+Operation:
+```
+pop()
+```
+
 #### `dup`
 
 Opcode: `0bxxx01000`
+
+Description:
+
+Takes a number from the stack and pushes the same value twice.
+
+Stack: `a -> a, a`
+
+`pop()` and `push()` are set by the size from the instruction format.
+
+Operation:
+```
+a = pop()
+push(a)
+push(a)
+```
 
 #### `readptr`
 
