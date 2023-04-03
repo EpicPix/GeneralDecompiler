@@ -66,7 +66,7 @@ static inline int64_t read_sized_signed(uint8_t* code, int* x, int size) {
   return v;
 }
 
-void arch_stestarch_disassemble(uint8_t* code, int code_length) {
+void* arch_stestarch_disassemble(uint8_t* code, int code_length) {
   int jmp_size = 0;
   for(int i = 0; i<code_length; i++) {
     uint8_t opcode = code[i];
@@ -168,6 +168,7 @@ void arch_stestarch_disassemble(uint8_t* code, int code_length) {
       }
     }
   }
+  return NULL;
 }
 
 const arch_info arch_stestarch = {
