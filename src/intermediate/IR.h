@@ -1,10 +1,21 @@
 #pragma once
 #include <stdint.h>
 
-#define IR_INSTR_ADD 0x0000
-
 #define IR_REGISTER_IP 0xffff
 #define IR_REGISTER_SP 0xfffe
+
+enum ir_instruction_type {
+  IR_INSTR_ADD,
+  IR_INSTR_SUB,
+  IR_INSTR_MUL,
+  IR_INSTR_DIV,
+  IR_INSTR_MOD,
+  IR_INSTR_AND,
+  IR_INSTR_OR,
+  IR_INSTR_XOR,
+
+  IR_INSTR_MOV,
+}
 
 struct ir_type {
   bool is_8bit : 1;
@@ -64,9 +75,16 @@ struct ir_binary_operation {
   struct ir_data_access_out result;
 };
 
+struct ir_unary_operation {
+  struct ir_type type;
+  struct ir_data_access_in input;
+  struct ir_data_access_out output;
+};
+
 struct ir_instruction {
-  uint16_t instr_type;
+  enum ir_instruction_type instr_type;
   union {
-    ir_binary_operation binary_operation;
+    struct ir_binary_operation binary_operation;
+    struct ir_unary_operation unary_operation;
   };
 };
