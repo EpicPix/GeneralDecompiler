@@ -32,12 +32,18 @@ struct ir_immediate {
   uint64_t value;
 };
 
+struct ir_pointer {
+  struct ir_type type;
+  uint64_t value;
+};
+
 struct ir_data_access_in {
   uint8_t data_type;
   union {
     struct ir_immediate imm;
     struct ir_register reg;
     struct ir_stack stack;
+    struct ir_pointer pointer;
   };
 };
 
@@ -46,6 +52,7 @@ struct ir_data_access_out {
   union {
     struct ir_register reg;
     struct ir_stack stack;
+    struct ir_pointer pointer;
   };
 };
 
