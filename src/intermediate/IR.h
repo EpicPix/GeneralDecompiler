@@ -59,7 +59,7 @@ struct ir_pointer {
 
 struct ir_address {
   struct ir_type type;
-  uint64_t value;
+  uint64_t address;
 };
 
 struct ir_data_access_in {
@@ -109,3 +109,10 @@ struct ir_instruction {
     struct ir_intrinsic intrinsic;
   };
 };
+
+#define IR_IMMEDIATE(TYPE, VALUE) (struct ir_data_access_in) { .data_type = IR_DATATYPE_IMMEDIATE, .imm = { .type = TYPE, .value = VALUE } }
+
+#define IR_REGISTER(TYPE, REGISTER_INDEX) { .data_type = IR_DATATYPE_REGISTER, .reg = { .type = TYPE, .register_index = REGISTER_INDEX } }
+#define IR_STACK(TYPE) { .data_type = IR_DATATYPE_STACK, .stack = { .type = TYPE } }
+#define IR_POINTER(TYPE, REGISTER_INDEX, DISPLACEMENT, SCALE) { .data_type = IR_DATATYPE_POINTER, .pointer = { .type = TYPE, .register_index = REGISTER_INDEX, .displacement = DISPLACEMENT, .scale = SCALE } }
+#define IR_ADDRESS(TYPE, ADDR) { .data_type = IR_DATATYPE_ADDRESS, .address = { .type = TYPE, .address = ADDR } }
