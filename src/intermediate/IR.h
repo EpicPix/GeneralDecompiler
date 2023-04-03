@@ -56,7 +56,7 @@ struct ir_data_access_out {
   };
 };
 
-struct ir_add {
+struct ir_binary_operation {
   uint16_t modifiable_flags;
   struct ir_type type;
   struct ir_data_access_in a;
@@ -67,6 +67,6 @@ struct ir_add {
 struct ir_instruction {
   uint16_t instr_type;
   union {
-    ir_add add;
+    ir_binary_operation binary_operation;
   };
 };
