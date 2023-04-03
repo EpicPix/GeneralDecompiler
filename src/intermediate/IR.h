@@ -15,6 +15,8 @@ enum ir_instruction_type {
   IR_INSTR_XOR,
 
   IR_INSTR_MOV,
+
+  IR_INSTR_INTRINSIC,
 }
 
 struct ir_type {
@@ -81,10 +83,15 @@ struct ir_unary_operation {
   struct ir_data_access_out output;
 };
 
+struct ir_intrinsic {
+  uint32_t intrinsic_id;
+};
+
 struct ir_instruction {
   enum ir_instruction_type instr_type;
   union {
     struct ir_binary_operation binary_operation;
     struct ir_unary_operation unary_operation;
+    struct ir_intrinsic intrinsic;
   };
 };
