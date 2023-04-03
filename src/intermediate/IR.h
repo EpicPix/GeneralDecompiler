@@ -17,7 +17,7 @@ enum ir_instruction_type {
   IR_INSTR_MOV,
 
   IR_INSTR_INTRINSIC,
-}
+};
 
 struct ir_type {
   bool is_8bit : 1;
