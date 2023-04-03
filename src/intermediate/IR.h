@@ -1,6 +1,8 @@
 #pragma once
 #include <stdint.h>
 
+#define IR_INSTR_ADD 0x0000
+
 #define IR_REGISTER_IP 0xffff
 #define IR_REGISTER_SP 0xfffe
 
