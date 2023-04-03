@@ -1,8 +1,15 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 #define IR_REGISTER_IP 0xffff
 #define IR_REGISTER_SP 0xfffe
+
+#define IR_DATATYPE_IMMEDIATE 0x00
+#define IR_DATATYPE_REGISTER 0x01
+#define IR_DATATYPE_STACK 0x02
+#define IR_DATATYPE_POINTER 0x03
+#define IR_DATATYPE_ADDRESS 0x04
 
 enum ir_instruction_type {
   IR_INSTR_ADD,
@@ -32,8 +39,6 @@ struct ir_type {
 struct ir_register {
   struct ir_type type;
   uint16_t register_index;
-  uint32_t displacement;
-  uint8_t scale;
 };
 
 struct ir_stack {
@@ -47,6 +52,13 @@ struct ir_immediate {
 
 struct ir_pointer {
   struct ir_type type;
+  uint16_t register_index;
+  uint32_t displacement;
+  uint8_t scale;
+};
+
+struct ir_address {
+  struct ir_type type;
   uint64_t value;
 };
 
@@ -57,6 +69,7 @@ struct ir_data_access_in {
     struct ir_register reg;
     struct ir_stack stack;
     struct ir_pointer pointer;
+    struct ir_address address;
   };
 };
 
@@ -66,6 +79,7 @@ struct ir_data_access_out {
     struct ir_register reg;
     struct ir_stack stack;
     struct ir_pointer pointer;
+    struct ir_address address;
   };
 };
 
