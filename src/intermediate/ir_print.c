@@ -11,6 +11,8 @@ const char* ir_instr_name(enum ir_instruction_type instr) {
     case IR_INSTR_AND: return "and";
     case IR_INSTR_OR: return "or";
     case IR_INSTR_XOR: return "xor";
+    case IR_INSTR_SHL: return "shl";
+    case IR_INSTR_SHR: return "shr";
     case IR_INSTR_MOV: return "mov";
     case IR_INSTR_INTRINSIC: return "intrinsic";
     default: return "unknown";
@@ -85,6 +87,8 @@ void ir_print_instruction(struct ir_instruction* instr) {
     case IR_INSTR_AND:
     case IR_INSTR_OR:
     case IR_INSTR_XOR:
+    case IR_INSTR_SHL:
+    case IR_INSTR_SHR:
     {
       ir_print_type(instr->binary_operation.type);
       printf(" ");

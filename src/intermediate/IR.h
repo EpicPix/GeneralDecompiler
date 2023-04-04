@@ -19,6 +19,8 @@ enum ir_instruction_type {
   IR_INSTR_AND,
   IR_INSTR_OR,
   IR_INSTR_XOR,
+  IR_INSTR_SHL,
+  IR_INSTR_SHR,
 
   IR_INSTR_MOV,
 
