@@ -110,6 +110,8 @@ struct ir_instruction {
   };
 };
 
+void ir_print_instruction(struct ir_instruction* instr);
+
 #define IR_IMMEDIATE(TYPE, VALUE) (struct ir_data_access_in) { .data_type = IR_DATATYPE_IMMEDIATE, .imm = { .type = TYPE, .value = VALUE } }
 
 #define IR_REGISTER(TYPE, REGISTER_INDEX) { .data_type = IR_DATATYPE_REGISTER, .reg = { .type = TYPE, .register_index = REGISTER_INDEX } }
