@@ -118,3 +118,7 @@ void ir_print_instruction(struct ir_instruction* instr);
 #define IR_STACK(TYPE) { .data_type = IR_DATATYPE_STACK, .stack = { .type = TYPE } }
 #define IR_POINTER(TYPE, REGISTER_INDEX, DISPLACEMENT, SCALE) { .data_type = IR_DATATYPE_POINTER, .pointer = { .type = TYPE, .register_index = REGISTER_INDEX, .displacement = DISPLACEMENT, .scale = SCALE } }
 #define IR_ADDRESS(TYPE, ADDR) { .data_type = IR_DATATYPE_ADDRESS, .address = { .type = TYPE, .address = ADDR } }
+
+#define IR_INSTR_BINARY(INSTR_TYPE, MODIFIABLE_FLAGS, TYPE, A, B, RESULT) (struct ir_instruction) { .instr_type = INSTR_TYPE, .binary_operation = { .modifiable_flags = MODIFIABLE_FLAGS, .type = TYPE, .a = A, .b = B, .result = RESULT } }
+#define IR_INSTR_UNARY(INSTR_TYPE, TYPE, IN, OUT) (struct ir_instruction) { .instr_type = INSTR_TYPE, .unary_operation = { .type = TYPE, .input = IN, .output = OUT } }
+#define IR_INSTR_INTRINSIC(INTRINSIC_ID) (struct ir_instruction) { .instr_type = IR_INSTR_INTRINSIC, .intrinsic = { .intrinsic_id = INTRINSIC_ID } }
