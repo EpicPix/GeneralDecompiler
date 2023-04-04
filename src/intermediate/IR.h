@@ -7,9 +7,8 @@
 
 #define IR_DATATYPE_IMMEDIATE 0x00
 #define IR_DATATYPE_REGISTER 0x01
-#define IR_DATATYPE_STACK 0x02
-#define IR_DATATYPE_POINTER 0x03
-#define IR_DATATYPE_ADDRESS 0x04
+#define IR_DATATYPE_POINTER 0x02
+#define IR_DATATYPE_ADDRESS 0x03
 
 enum ir_instruction_type {
   IR_INSTR_ADD,
@@ -41,10 +40,6 @@ struct ir_register {
   uint16_t register_index;
 };
 
-struct ir_stack {
-  struct ir_type type;
-};
-
 struct ir_immediate {
   struct ir_type type;
   uint64_t value;
@@ -53,7 +48,7 @@ struct ir_immediate {
 struct ir_pointer {
   struct ir_type type;
   uint16_t register_index;
-  uint32_t displacement;
+  int32_t displacement;
   uint8_t scale;
 };
 
@@ -67,7 +62,6 @@ struct ir_data_access_in {
   union {
     struct ir_immediate imm;
     struct ir_register reg;
-    struct ir_stack stack;
     struct ir_pointer pointer;
     struct ir_address address;
   };
@@ -77,7 +71,6 @@ struct ir_data_access_out {
   uint8_t data_type;
   union {
     struct ir_register reg;
-    struct ir_stack stack;
     struct ir_pointer pointer;
     struct ir_address address;
   };
@@ -115,7 +108,6 @@ void ir_print_instruction(struct ir_instruction* instr);
 #define IR_IMMEDIATE(TYPE, VALUE) (struct ir_data_access_in) { .data_type = IR_DATATYPE_IMMEDIATE, .imm = { .type = TYPE, .value = VALUE } }
 
 #define IR_REGISTER(TYPE, REGISTER_INDEX) { .data_type = IR_DATATYPE_REGISTER, .reg = { .type = TYPE, .register_index = REGISTER_INDEX } }
-#define IR_STACK(TYPE) { .data_type = IR_DATATYPE_STACK, .stack = { .type = TYPE } }
 #define IR_POINTER(TYPE, REGISTER_INDEX, DISPLACEMENT, SCALE) { .data_type = IR_DATATYPE_POINTER, .pointer = { .type = TYPE, .register_index = REGISTER_INDEX, .displacement = DISPLACEMENT, .scale = SCALE } }
 #define IR_ADDRESS(TYPE, ADDR) { .data_type = IR_DATATYPE_ADDRESS, .address = { .type = TYPE, .address = ADDR } }
 

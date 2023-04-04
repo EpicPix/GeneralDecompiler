@@ -41,15 +41,10 @@ void ir_print_register(struct ir_register* reg) {
   printf(" %d", reg->register_index);
 }
 
-void ir_print_stack(struct ir_stack* stack) {
-  printf("stack ");
-  ir_print_type(stack->type);
-}
-
 void ir_print_pointer(struct ir_pointer* pointer) {
   printf("pointer ");
   ir_print_type(pointer->type);
-  printf(" %d %u %u", pointer->register_index, pointer->displacement, pointer->scale);
+  printf(" %d %d %u", pointer->register_index, pointer->displacement, pointer->scale);
 }
 
 void ir_print_address(struct ir_address* addr) {
@@ -63,7 +58,6 @@ void ir_print_data_access_in(struct ir_data_access_in* access) {
   switch(access->data_type) {
     case IR_DATATYPE_IMMEDIATE: ir_print_immediate(&access->imm); break;
     case IR_DATATYPE_REGISTER: ir_print_register(&access->reg); break;
-    case IR_DATATYPE_STACK: ir_print_stack(&access->stack); break;
     case IR_DATATYPE_POINTER: ir_print_pointer(&access->pointer); break;
     case IR_DATATYPE_ADDRESS: ir_print_address(&access->address); break;
   }
@@ -74,7 +68,6 @@ void ir_print_data_access_out(struct ir_data_access_out* access) {
   printf("[");
   switch(access->data_type) {
     case IR_DATATYPE_REGISTER: ir_print_register(&access->reg); break;
-    case IR_DATATYPE_STACK: ir_print_stack(&access->stack); break;
     case IR_DATATYPE_POINTER: ir_print_pointer(&access->pointer); break;
     case IR_DATATYPE_ADDRESS: ir_print_address(&access->address); break;
   }
