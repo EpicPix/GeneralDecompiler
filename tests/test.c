@@ -15,12 +15,6 @@ typedef struct section {
 #define TEST_OK 1
 #define TEST_FAIL 0
 
-static inline int hex_get_num(char v) {
-  if(v >= '0' && v <= '9') return v - '0';
-  if(v >= 'a' && v <= 'f') return v - 'a' + 0xa;
-  return (v - 'A' + 0xa) & 0xf;
-}
-
 int test_run_file(char* file) {
   int fd = open(file, O_RDONLY);
   struct stat stat;
@@ -29,7 +23,6 @@ int test_run_file(char* file) {
   read(fd, data, stat.st_size);
   
   section name = { 0 };
-  section input = { 0 };
   section result = { 0, .end = stat.st_size };
   int current_section = 0;
   
@@ -37,14 +30,12 @@ int test_run_file(char* file) {
     if(i < stat.st_size - 3) {
       if(data[i] == '-' && data[i + 1] == '-' && data[i + 2] == '-') {
         if(current_section == 0) name.end = i - 1;
-        else if(current_section == 1) input.end = i - 1;
-        else if(current_section == 2) result.end = i - 1;
+        else if(current_section == 1) result.end = i - 1;
         
         i += 3;
         current_section++;
         
-        if(current_section == 1) input.start = i + 1;
-        else if(current_section == 2) result.start = i + 1;
+        if(current_section == 1) result.start = i + 1;
         else break;
         continue;
       }
@@ -56,18 +47,6 @@ int test_run_file(char* file) {
     name_str[name.end - name.start] = '\0';
     printf("Running '%s': ", name_str);
   }
-  if((input.end - input.start) % 2 != 0) {
-    printf("invalid data\n");
-    return TEST_FAIL;
-  }
-  
-  int in_length = (input.end - input.start) / 2;
-  uint8_t* in = alloca(in_length);
-  for(int i = 0; i<in_length; i++) {
-    in[i] = (hex_get_num(data[i * 2 + input.start]) << 4) | hex_get_num(data[i * 2 + input.start + 1]);
-  }
-  int tmp = open("./tests/test.tmp", O_RDWR | O_CREAT, 0700);
-  write(tmp, in, in_length);
   
   int pre_last_dot = 0;
   int last_dot = 0;
@@ -78,11 +57,16 @@ int test_run_file(char* file) {
       last_dot = i;
     }
   }
+  char* run_file = alloca(filename_len + 5);
+  memcpy(run_file, file, filename_len);
+  memcpy(run_file + filename_len, ".run", 4);
+  run_file[filename_len + 4] = '\0';
+
   char* arch_type = alloca(last_dot - pre_last_dot);
   memcpy(arch_type, file + pre_last_dot + 1, last_dot - pre_last_dot - 1);
   arch_type[last_dot - pre_last_dot - 1] = '\0';
 
-  char* args[4] = {"./out/decompiler", arch_type, "./tests/test.tmp", NULL};
+  char* args[4] = {"./out/decompiler", arch_type, run_file, NULL};
   
   int pipefd[2];
   pipe(pipefd);
@@ -108,8 +92,6 @@ int test_run_file(char* file) {
     fail:
       printf("FAILED\n");
       close(pipefd[0]);
-      close(tmp);
-      unlink("./tests/test.tmp"); 
       return TEST_FAIL;
     }else if(memcmp(data + result.start + total_read_count, rd, read_count) != 0) {
       goto fail;
@@ -126,8 +108,6 @@ int test_run_file(char* file) {
   }
   close(pipefd[0]);
   
-  close(tmp);
-  unlink("./tests/test.tmp"); 
   return TEST_OK;
 }
 

@@ -4,3 +4,8 @@ local/
 .fleet/
 .vscode/
 .idea/
+
+tests/**
+!tests/**.c
+!tests/**.asm
+!tests/**.test

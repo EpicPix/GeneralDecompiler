@@ -19,5 +19,8 @@ jobs:
           version: latest
           platform: x64
       
+      - uses: ilammy/setup-nasm@v1
+        name: Set up nasm
+      
       - name: Run Tests
         run: make clean test
