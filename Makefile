@@ -6,7 +6,7 @@ all: clean out/decompiler test
 clean:
 	mkdir -p out
 	rm -rf out/*
-	rm -f $(subst .test,,$(TESTS))
+	rm -f $(subst .test,,$(TESTS)) $(subst .test,.o,$(TESTS))
 
 out/decompiler: $(SRC)
 	gcc -o $@ $^ -g -O1 -Wall -Wextra -Wno-unused-parameter
@@ -15,7 +15,8 @@ out/test_runner: tests/test.c
 	gcc tests/test.c -o out/test_runner -g -O1 -Wall -Wextra -Wno-unused-parameter
 
 tests/%.test: tests/%.asm
-	nasm -felf64 $? -o $(subst .test,,$@)
+	nasm -felf64 $? -o $(subst .test,.o,$@)
+	ld -o $(subst .test,,$@) $(subst .test,.o,$@)
 
 test: out/test_runner out/decompiler $(TESTS)
 	out/test_runner $(TESTS)
