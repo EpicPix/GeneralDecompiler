@@ -113,5 +113,15 @@ void elf_read(uint8_t* bytes, int byte_count) {
     uint64_t addralign = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
     uint64_t entsize = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
     printf("% 3d %08x %04lx 0x%016lx 0x%016lx % 3ld %d %08x % 3ld %ld\n", name, type, flags, addr, offset, size, link, info, addralign, entsize);
+    if(shstr_index == i) {
+      uint64_t end = offset+size;
+      for(uint64_t si = offset; si<end; si++) {
+        if(bytes[si] == '\0') {
+          printf("\n");
+        }else {
+          printf("%c", bytes[si]);
+        }
+      }
+    }
   }
 }
