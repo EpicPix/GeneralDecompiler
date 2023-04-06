@@ -1,5 +1,117 @@
 #include "elf.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <endian.h>
+
+
+static inline uint8_t read_byte(uint8_t* bytes, int* index, int byte_count) {
+  if(*index + 1 > byte_count) {
+    fprintf(stderr, "Cannot read byte from index %d\n", *index);
+    exit(1);
+  }
+  return bytes[(*index)++];
+}
+
+static inline uint16_t read_word(uint8_t* bytes, int* index, int byte_count, bool le) {
+  if(*index + 2 > byte_count) {
+    fprintf(stderr, "Cannot read word from index %d\n", *index);
+    exit(1);
+  }
+  uint16_t data = *(uint16_t*) (bytes + *index);
+  (*index) += 2;
+  return le ? le16toh(data) : be16toh(data);
+}
+
+static inline uint32_t read_int(uint8_t* bytes, int* index, int byte_count, bool le) {
+  if(*index + 4 > byte_count) {
+    fprintf(stderr, "Cannot read int from index %d\n", *index);
+    exit(1);
+  }
+  uint32_t data = *(uint32_t*) (bytes + *index);
+  (*index) += 4;
+  return le ? le32toh(data) : be32toh(data);
+}
+
+static inline uint64_t read_long(uint8_t* bytes, int* index, int byte_count, bool le) {
+  if(*index + 8 > byte_count) {
+    fprintf(stderr, "Cannot read long from index %d\n", *index);
+    exit(1);
+  }
+  uint64_t data = *(uint64_t*) (bytes + *index);
+  (*index) += 8;
+  return le ? le64toh(data) : be64toh(data);
+}
 
 void elf_read(uint8_t* bytes, int byte_count) {
+  int index = 0;
+  if(read_byte(bytes, &index, byte_count) != 0x7F || read_byte(bytes, &index, byte_count) != 'E' || read_byte(bytes, &index, byte_count) != 'L' || read_byte(bytes, &index, byte_count) != 'F') {
+    fprintf(stderr, "Invalid ELF header\n");
+    exit(1);
+  }
+  bool is_64bit = read_byte(bytes, &index, byte_count) == 0x02;
+  bool little_endian = read_byte(bytes, &index, byte_count) != 0x02;
+  if(read_byte(bytes, &index, byte_count) != 0x01) {
+    fprintf(stderr, "Unknown ELF version\n");
+    exit(1);
+  }
+  uint8_t abi = read_byte(bytes, &index, byte_count);
+  read_byte(bytes, &index, byte_count); // abi version
+  index = 0x10;
+  uint16_t type = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t machine = read_word(bytes, &index, byte_count, little_endian);
+  if(read_int(bytes, &index, byte_count, little_endian) != 0x01) {
+    fprintf(stderr, "Unknown ELF version\n");
+    exit(1);
+  }
+  uint64_t entry = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+  uint64_t ph_start = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+  uint64_t sh_start = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+  uint32_t flags = read_int(bytes, &index, byte_count, little_endian);
+  uint16_t header_size = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t ph_size = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t phe_count = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t sh_size = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t she_count = read_word(bytes, &index, byte_count, little_endian);
+  uint16_t shstr_index = read_word(bytes, &index, byte_count, little_endian);
+  printf("%d %d %02x %04x %04x %p %p %p\n", is_64bit, little_endian, abi, type, machine, (void*)entry, (void*) ph_start, (void*) sh_start);
+  printf("%08x %d %d %d %d %d %d\n", flags, header_size, ph_size, phe_count, sh_size, she_count, shstr_index);
+  if(index != header_size) {
+    fprintf(stderr, "Invalid read count\n");
+    exit(1);
+  }
+
+  printf("------\n");
+
+  index = ph_start;
+  for(int i = 0; i<phe_count; i++) {
+    uint32_t type = read_int(bytes, &index, byte_count, little_endian);
+    uint64_t flags;
+    if(is_64bit) flags = read_int(bytes, &index, byte_count, little_endian);
+    uint64_t offset = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t vaddr = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t paddr = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t size = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t memsize = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    if(!is_64bit) flags = read_int(bytes, &index, byte_count, little_endian);
+    uint64_t align = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    printf("%08x %04lx 0x%016lx 0x%016lx 0x%016lx %ld %ld %ld\n", type, flags, offset, vaddr, paddr, size, memsize, align);
+  }
   
+  printf("------\n");
+
+  index = sh_start;
+  for(int i = 0; i<she_count; i++) {
+    uint32_t name = read_int(bytes, &index, byte_count, little_endian);
+    uint32_t type = read_int(bytes, &index, byte_count, little_endian);
+    uint64_t flags = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t addr = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t offset = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t size = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint32_t link = read_int(bytes, &index, byte_count, little_endian);
+    uint32_t info = read_int(bytes, &index, byte_count, little_endian);
+    uint64_t addralign = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    uint64_t entsize = is_64bit ? read_long(bytes, &index, byte_count, little_endian) : read_int(bytes, &index, byte_count, little_endian);
+    printf("% 3d %08x %04lx 0x%016lx 0x%016lx % 3ld %d %08x % 3ld %ld\n", name, type, flags, addr, offset, size, link, info, addralign, entsize);
+  }
 }
