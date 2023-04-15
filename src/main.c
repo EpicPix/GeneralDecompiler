@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
 
   if(strcmp(argv[1], "elf") == 0) {
     elf_read(data, stat.st_size);
+  }else {
+    fprintf(stderr, "Unknown format: %s\n", argv[1]);
   }
 
   free(data);
