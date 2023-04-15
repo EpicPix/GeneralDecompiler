@@ -5,8 +5,8 @@ static void* arch_load_data(uint8_t* code, int code_length) {
   return NULL;
 }
 
-static void* arch_prepare_data(void* loaded_data) {
-  return NULL;
+static struct arch_prepared_data arch_prepare_data(void* loaded_data) {
+  return (struct arch_prepared_data) { .prepared_data = NULL, .details_data = NULL };
 }
 
 static struct ir_data* arch_generate_ir(void* prepared_data) {

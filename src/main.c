@@ -38,17 +38,17 @@ int main(int argc, char** argv) {
   DEBUG_LOG("Loading data into '%s' arch...", argv[1]);
   void* loaded = arch->load_data(data, stat.st_size);
   DEBUG_LOG("Loaded data at address %p, preparing data...", loaded);
-  void* prepared = arch->prepare_data(loaded);
-  DEBUG_LOG("Prepared data at address %p, generating IR...", prepared);
-  struct ir_data* ir_gen = arch->generate_ir(prepared);
+  struct arch_prepared_data prepared = arch->prepare_data(loaded);
+  DEBUG_LOG("Prepared data at addresses prepared:%p details:%p, generating IR...", prepared.prepared_data, prepared.details_data);
+  struct ir_data* ir_gen = arch->generate_ir(prepared.prepared_data);
   DEBUG_LOG("Generated IR at address %p, optimizing IR...", ir_gen);
   struct ir_data* ir = ir_optimize(ir_gen);
 #ifdef DEBUG
   DEBUG_LOG("%s", "Printing optimized IR");
-  ir_print_instructions(ir);
+  ir_print_instructions(ir, prepared.details_data);
 #endif
   DEBUG_LOG("Optimized IR at address %p, printing decompiled code...", ir);
-  ir_print_decompiled(ir);
+  ir_print_decompiled(ir, prepared.details_data);
 
   free(data);
   close(fd);
