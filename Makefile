@@ -8,6 +8,9 @@ clean:
 	rm -rf out/*
 	rm -f $(subst .test,.test.run,$(TESTS)) $(subst .test,.o,$(TESTS))
 
+decompiler_debug: $(SRC)
+	gcc -o out/decompiler_debug $^ -g -O1 -Wall -Wextra -Wno-unused-parameter -DDEBUG
+
 out/decompiler: $(SRC)
 	gcc -o $@ $^ -g -O1 -Wall -Wextra -Wno-unused-parameter
 
