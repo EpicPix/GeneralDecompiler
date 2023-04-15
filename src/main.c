@@ -23,11 +23,18 @@ int main(int argc, char** argv) {
   uint8_t* data = malloc(stat.st_size);
   read(fd, data, stat.st_size);
 
-  if(strcmp(argv[1], "elf") == 0) {
-    elf_read(data, stat.st_size);
-  }else {
-    fprintf(stderr, "Unknown format: %s\n", argv[1]);
+  const arch_info* arch = arch_get(argv[1]);
+
+  if(arch == NULL) {
+    fprintf(stderr, "Unknown architecture/format: %s\n", argv[1]);
+    free(data);
+    close(fd);
+    return 1;
   }
+
+  void* loaded = arch->load_data(data, stat.st_size);
+  void* prepared = arch->prepare_data(loaded);
+  struct ir_data* ir = arch->generate_ir(prepared);
 
   free(data);
   close(fd);
