@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "ir/IR.h"
 #include "arch/arch.h"
 #include "elf/elf.h"
 
@@ -35,6 +36,7 @@ int main(int argc, char** argv) {
   void* loaded = arch->load_data(data, stat.st_size);
   void* prepared = arch->prepare_data(loaded);
   struct ir_data* ir = arch->generate_ir(prepared);
+  print_decompiled_ir(ir);
 
   free(data);
   close(fd);
