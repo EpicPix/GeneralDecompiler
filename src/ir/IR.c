@@ -1,9 +1,13 @@
 #include "IR.h"
 
-void print_ir_instructions(struct ir_data* data) {
+struct ir_data* ir_optimize(struct ir_data* data) {
+  return data;
+}
+
+void ir_print_instructions(struct ir_data* data) {
 
 }
 
-void print_decompiled_ir(struct ir_data* data) {
+void ir_print_decompiled(struct ir_data* data) {
 
 }

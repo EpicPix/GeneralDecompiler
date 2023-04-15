@@ -35,8 +35,9 @@ int main(int argc, char** argv) {
 
   void* loaded = arch->load_data(data, stat.st_size);
   void* prepared = arch->prepare_data(loaded);
-  struct ir_data* ir = arch->generate_ir(prepared);
-  print_decompiled_ir(ir);
+  struct ir_data* ir_gen = arch->generate_ir(prepared);
+  struct ir_data* ir = ir_optimize(ir_gen);
+  ir_print_decompiled(ir);
 
   free(data);
   close(fd);
