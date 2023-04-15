@@ -48,13 +48,15 @@ int test_run_file(char* file) {
     printf("Running '%s': ", name_str);
   }
   
-  int pre_last_dot = 0;
   int last_dot = 0;
+  int last_und = 0;
   int filename_len = strlen(file);
   for(int i = 0; i<filename_len; i++) {
     if(file[i] == '.') {
-      pre_last_dot = last_dot;
       last_dot = i;
+    }
+    if(file[i] == '_') {
+      last_und = i;
     }
   }
   char* run_file = alloca(filename_len + 5);
@@ -62,9 +64,9 @@ int test_run_file(char* file) {
   memcpy(run_file + filename_len, ".run", 4);
   run_file[filename_len + 4] = '\0';
 
-  char* arch_type = alloca(last_dot - pre_last_dot);
-  memcpy(arch_type, file + pre_last_dot + 1, last_dot - pre_last_dot - 1);
-  arch_type[last_dot - pre_last_dot - 1] = '\0';
+  char* arch_type = alloca(last_dot - last_und);
+  memcpy(arch_type, file + last_und + 1, last_dot - last_und - 1);
+  arch_type[last_dot - last_und - 1] = '\0';
 
   char* args[4] = {"./out/decompiler", arch_type, run_file, NULL};
   

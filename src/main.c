@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
   }
   int fd = open(argv[2], O_RDONLY);
   if(fd == -1) {
-    fprintf(stderr, "Could not open file\n");
+    fprintf(stderr, "Could not open file: %s\n", argv[2]);
     return 1;
   }
   struct stat stat;
