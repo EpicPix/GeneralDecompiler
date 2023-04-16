@@ -9,6 +9,9 @@ struct jvm_class_loaded_file {
   uint16_t major_version;
   int constant_pool_count;
   struct jvm_class_loaded_constant_pool_entry* constant_pool_entries;
+  uint16_t access_flags;
+  uint16_t this_class;
+  uint16_t super_class;
 };
 
 struct jvmclass_utf8_entry {

@@ -79,6 +79,10 @@ static void* arch_load_data(uint8_t* code, int code_length) {
     }
   }
 
+  cf->access_flags = read_word_be(code, &index, code_length);
+  cf->this_class = read_word_be(code, &index, code_length);
+  cf->super_class = read_word_be(code, &index, code_length);
+
   return cf;
 }
 
