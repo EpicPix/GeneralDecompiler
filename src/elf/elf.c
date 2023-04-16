@@ -3,45 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <endian.h>
-
-
-static inline uint8_t read_byte(uint8_t* bytes, int* index, int byte_count) {
-  if(*index + 1 > byte_count) {
-    fprintf(stderr, "Cannot read byte from index %d\n", *index);
-    exit(1);
-  }
-  return bytes[(*index)++];
-}
-
-static inline uint16_t read_word(uint8_t* bytes, int* index, int byte_count, bool le) {
-  if(*index + 2 > byte_count) {
-    fprintf(stderr, "Cannot read word from index %d\n", *index);
-    exit(1);
-  }
-  uint16_t data = *(uint16_t*) (bytes + *index);
-  (*index) += 2;
-  return le ? le16toh(data) : be16toh(data);
-}
-
-static inline uint32_t read_int(uint8_t* bytes, int* index, int byte_count, bool le) {
-  if(*index + 4 > byte_count) {
-    fprintf(stderr, "Cannot read int from index %d\n", *index);
-    exit(1);
-  }
-  uint32_t data = *(uint32_t*) (bytes + *index);
-  (*index) += 4;
-  return le ? le32toh(data) : be32toh(data);
-}
-
-static inline uint64_t read_long(uint8_t* bytes, int* index, int byte_count, bool le) {
-  if(*index + 8 > byte_count) {
-    fprintf(stderr, "Cannot read long from index %d\n", *index);
-    exit(1);
-  }
-  uint64_t data = *(uint64_t*) (bytes + *index);
-  (*index) += 8;
-  return le ? le64toh(data) : be64toh(data);
-}
+#include "../byte_reader.h"
 
 void elf_read(uint8_t* bytes, int byte_count) {
   int index = 0;
