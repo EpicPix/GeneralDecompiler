@@ -102,11 +102,13 @@ static void* arch_load_data(uint8_t* code, int code_length) {
 
   cf->interface_count = read_word_be(code, &index, code_length);
   cf->interfaces = malloc(cf->interface_count * sizeof(uint16_t));
+  ARCH_LOG("Interface count: %d", cf->interface_count);
   for(int i = 0; i<cf->interface_count; i++) {
     cf->interfaces[i] = read_word_be(code, &index, code_length);
   }
 
   cf->field_count = read_word_be(code, &index, code_length);
+  ARCH_LOG("Field count: %d", cf->field_count);
   cf->fields = malloc(cf->field_count * sizeof(struct jvm_class_loaded_field));
   for(int i = 0; i<cf->field_count; i++) {
     struct jvm_class_loaded_field* field = &cf->fields[i];
@@ -118,6 +120,7 @@ static void* arch_load_data(uint8_t* code, int code_length) {
   }
 
   cf->method_count = read_word_be(code, &index, code_length);
+  ARCH_LOG("Method count: %d", cf->method_count);
   cf->methods = malloc(cf->method_count * sizeof(struct jvm_class_loaded_method));
   for(int i = 0; i<cf->method_count; i++) {
     struct jvm_class_loaded_method* method = &cf->methods[i];
@@ -129,6 +132,7 @@ static void* arch_load_data(uint8_t* code, int code_length) {
   }
 
   cf->attribute_count = read_word_be(code, &index, code_length);
+  ARCH_LOG("Attribute count: %d", cf->attribute_count);
   cf->attributes = arch_load_attributes(code, &index, code_length, cf->attribute_count);
 
   return cf;
