@@ -3,11 +3,28 @@
 #include <string.h>
 #include "class_format.h"
 #include "../byte_reader.h"
+#include "class_format_loaded.h"
+
+static struct jvm_class_loaded_attribute* arch_load_attributes(uint8_t* code, int* index, uint32_t code_length, int attribute_count) {
+  struct jvm_class_loaded_attribute* attributes = malloc(sizeof(struct jvm_class_loaded_attribute) * attribute_count);
+  for(int i = 0; i<attribute_count; i++) {
+    attributes[i].name_index = read_word_be(code, index, code_length);
+    attributes[i].length = read_int_be(code, index, code_length);
+    if(*index + attributes[i].length > code_length) {
+      fprintf(stderr, "Cannot read %d bytes from index %d\n", attributes[i].length, *index);
+      exit(1);
+    }
+    void* data = malloc(attributes[i].length);
+    memcpy(data, code + *index, attributes[i].length);
+    attributes[i].bytes = data;
+  }
+  return attributes;
+}
 
 static void* arch_load_data(uint8_t* code, int code_length) {
   int index = 0;
   if(read_int_be(code, &index, code_length) != 0xCAFEBABE) {
-    fprintf(stderr, "Invalid java magic number\n");
+    fprintf(stderr, "Invalid class magic number\n");
     exit(1);
   }
   struct jvm_class_loaded_file* cf = malloc(sizeof(struct jvm_class_loaded_file));
@@ -82,6 +99,37 @@ static void* arch_load_data(uint8_t* code, int code_length) {
   cf->access_flags = read_word_be(code, &index, code_length);
   cf->this_class = read_word_be(code, &index, code_length);
   cf->super_class = read_word_be(code, &index, code_length);
+
+  cf->interface_count = read_word_be(code, &index, code_length);
+  cf->interfaces = malloc(cf->interface_count * sizeof(uint16_t));
+  for(int i = 0; i<cf->interface_count; i++) {
+    cf->interfaces[i] = read_word_be(code, &index, code_length);
+  }
+
+  cf->field_count = read_word_be(code, &index, code_length);
+  cf->fields = malloc(cf->field_count * sizeof(struct jvm_class_loaded_field));
+  for(int i = 0; i<cf->field_count; i++) {
+    struct jvm_class_loaded_field* field = &cf->fields[i];
+    field->access_flags = read_word_be(code, &index, code_length);
+    field->name_index = read_word_be(code, &index, code_length);
+    field->descriptor_index = read_word_be(code, &index, code_length);
+    field->attribute_count = read_word_be(code, &index, code_length);
+    field->attributes = arch_load_attributes(code, &index, code_length, field->attribute_count);
+  }
+
+  cf->method_count = read_word_be(code, &index, code_length);
+  cf->methods = malloc(cf->method_count * sizeof(struct jvm_class_loaded_method));
+  for(int i = 0; i<cf->method_count; i++) {
+    struct jvm_class_loaded_method* method = &cf->methods[i];
+    method->access_flags = read_word_be(code, &index, code_length);
+    method->name_index = read_word_be(code, &index, code_length);
+    method->descriptor_index = read_word_be(code, &index, code_length);
+    method->attribute_count = read_word_be(code, &index, code_length);
+    method->attributes = arch_load_attributes(code, &index, code_length, method->attribute_count);
+  }
+
+  cf->attribute_count = read_word_be(code, &index, code_length);
+  cf->attributes = arch_load_attributes(code, &index, code_length, cf->attribute_count);
 
   return cf;
 }
