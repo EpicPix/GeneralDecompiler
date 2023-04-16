@@ -2,7 +2,7 @@
 
 #ifdef DEBUG
 
-#include <stdlib.h>
+#include <stdio.h>
 #define DEBUG_LOG(format, ...) printf("%s:%d: " format "\n", __FILE__, __LINE__, __VA_ARGS__)
 
 #else
