@@ -76,7 +76,7 @@ struct jvm_class_prepared_constant_pool_entry {
       struct jvmclass_prepared_utf8_entry* descriptor;
     } name_and_type;
     struct jvmclass_prepared_method_handle_entry {
-      uint16_t reference_index;
+      struct jvm_class_prepared_constant_pool_entry* reference;
       uint8_t reference_kind;
     } method_handle;
     struct jvmclass_prepared_dynamic_entry {
@@ -87,7 +87,7 @@ struct jvm_class_prepared_constant_pool_entry {
       struct jvmclass_prepared_utf8_entry* class_name;
       struct jvmclass_prepared_name_and_type_entry* name_and_type;
     } ref;
-    struct jvmclass_prepared_index_entry { struct jvm_class_prepared_constant_pool_entry* entry; } index;
+    struct jvmclass_prepared_index_entry { struct jvmclass_prepared_utf8_entry* entry; } index;
     struct jvmclass_prepared_int_entry { int num; } u4;
     struct jvmclass_prepared_float_entry { float num; } f4;
     struct jvmclass_prepared_long_entry { long num; } u8;

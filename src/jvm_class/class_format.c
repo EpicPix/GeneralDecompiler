@@ -4,6 +4,7 @@
 #include "class_format.h"
 #include "../byte_reader.h"
 #include "class_format_loaded.h"
+#include "class_format_prepared.h"
 
 static struct jvm_class_loaded_attribute* arch_load_attributes(uint8_t* code, int* index, uint32_t code_length, int attribute_count) {
   struct jvm_class_loaded_attribute* attributes = malloc(sizeof(struct jvm_class_loaded_attribute) * attribute_count);
@@ -140,7 +141,115 @@ static void* arch_load_data(uint8_t* code, int code_length) {
 }
 
 static void* arch_prepare_data(void* loaded_data) {
-  return NULL;
+  struct jvm_class_loaded_file* cfl = (struct jvm_class_loaded_file*) loaded_data;
+  struct jvm_class_prepared_file* cf = malloc(sizeof(struct jvm_class_prepared_file));
+  int constant_pool_count = cfl->constant_pool_count;
+  cf->major_version = cfl->major_version;
+  cf->constant_pool_count = constant_pool_count;
+  cf->constant_pool_entries = malloc(sizeof(struct jvm_class_prepared_constant_pool_entry) * constant_pool_count);
+  for(int i = 0; i<constant_pool_count; i++) {
+    struct jvm_class_prepared_constant_pool_entry* entry = &cf->constant_pool_entries[i];
+    entry->tag = cfl->constant_pool_entries[i].tag;
+    switch(entry->tag) {
+    case 1:
+      entry->entry.utf8.bytes = cfl->constant_pool_entries[i].entry.utf8.bytes;
+      entry->entry.utf8.length = cfl->constant_pool_entries[i].entry.utf8.length;
+      break;
+    case 3:
+      entry->entry.u4.num = cfl->constant_pool_entries[i].entry.u4.num;
+      break;
+    case 4:
+      entry->entry.f4.num = cfl->constant_pool_entries[i].entry.f4.num;
+      break;
+    case 5:
+      entry->entry.u8.num = cfl->constant_pool_entries[i].entry.u8.num;
+      i++;
+      break;
+    case 6:
+      entry->entry.f8.num = cfl->constant_pool_entries[i].entry.f8.num;
+      i++;
+      break;
+    case 7:
+    case 8:
+    {
+      int index_loc = cfl->constant_pool_entries[i].entry.index.index - 1;
+      if(cfl->constant_pool_entries[index_loc].tag != 1) {
+        ARCH_LOG("Failed check for tag %d, tag: %d expected %d.", entry->tag, cfl->constant_pool_entries[index_loc].tag, 1);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+      entry->entry.index.entry = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[index_loc];
+      break;
+    }
+    case 16:
+    case 19:
+    case 20:
+    {
+      int index_loc = cfl->constant_pool_entries[i].entry.index.index - 1;
+      if(cfl->constant_pool_entries[index_loc].tag != 1) {
+        ARCH_LOG("Failed check for tag %d, tag: %d expected %d.", entry->tag, cfl->constant_pool_entries[index_loc].tag, 1);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+      entry->entry.index.entry = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[index_loc];
+      break;
+    }
+    case 9:
+    case 10:
+    case 11:
+    {
+      int class_index_loc = cfl->constant_pool_entries[i].entry.ref.class_index - 1;
+      if(cfl->constant_pool_entries[class_index_loc].tag != 7) {
+        ARCH_LOG("Failed check for tag %d, tag: %d expected %d.", entry->tag, cfl->constant_pool_entries[class_index_loc].tag, 7);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+
+      int class_name_loc = cfl->constant_pool_entries[class_index_loc].entry.index.index - 1;
+      int name_and_type_loc = cfl->constant_pool_entries[i].entry.ref.name_and_type_index - 1;
+      if(cfl->constant_pool_entries[class_name_loc].tag != 1 || cfl->constant_pool_entries[name_and_type_loc].tag != 12) {
+        ARCH_LOG("Failed check for tag %d, tag: %d,%d expected %d,%d.", entry->tag, cfl->constant_pool_entries[class_name_loc].tag, cfl->constant_pool_entries[name_and_type_loc].tag, 1, 12);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+      entry->entry.ref.class_name = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[class_name_loc];
+      entry->entry.ref.name_and_type = (struct jvmclass_prepared_name_and_type_entry*) &cf->constant_pool_entries[name_and_type_loc];
+      break;
+    }
+    case 12:
+    {
+      int name_loc = cfl->constant_pool_entries[i].entry.name_and_type.name_index - 1;
+      int descriptor_loc = cfl->constant_pool_entries[i].entry.name_and_type.descriptor_index - 1;
+      if(cfl->constant_pool_entries[name_loc].tag != 1 || cfl->constant_pool_entries[descriptor_loc].tag != 1) {
+        ARCH_LOG("Failed check for tag %d, tag: %d,%d expected %d,%d.", entry->tag, cfl->constant_pool_entries[name_loc].tag, cfl->constant_pool_entries[descriptor_loc].tag, 1, 1);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+      entry->entry.name_and_type.name = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[name_loc];
+      entry->entry.name_and_type.descriptor = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[descriptor_loc];
+      break;
+    }
+    case 15:
+      entry->entry.method_handle.reference_kind = cfl->constant_pool_entries[i].entry.method_handle.reference_kind;
+      entry->entry.method_handle.reference = &cf->constant_pool_entries[cfl->constant_pool_entries[i].entry.method_handle.reference_index - 1];
+      break;
+    case 17:
+    case 18:
+    {
+      int name_and_type_loc = cfl->constant_pool_entries[i].entry.dynamic.name_and_type_index - 1;
+      if(cfl->constant_pool_entries[name_and_type_loc].tag != 12) {
+        ARCH_LOG("Failed check for tag %d, tag: %d expected %d.", entry->tag, cfl->constant_pool_entries[name_and_type_loc].tag, 12);
+        fprintf(stderr, "Invalid tag\n");
+        exit(1);
+      }
+      entry->entry.dynamic.bootstrap_method_attr_index = cfl->constant_pool_entries[i].entry.dynamic.bootstrap_method_attr_index;
+      entry->entry.dynamic.name_and_type = (struct jvmclass_prepared_name_and_type_entry*) &cf->constant_pool_entries[name_and_type_loc];
+      break;
+    }
+    }
+  }
+
+  return cf;
 }
 
 static struct ir_data* arch_generate_ir(void* prepared_data) {
