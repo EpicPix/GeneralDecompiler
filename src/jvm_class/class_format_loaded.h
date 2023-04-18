@@ -42,46 +42,34 @@ struct jvm_class_loaded_file {
   struct jvm_class_loaded_attribute* attributes;
 };
 
-struct jvmclass_utf8_entry {
-  char* bytes;
-  uint16_t length;
-} __attribute__((packed, aligned(1)));
-struct jvmclass_name_and_type_entry {
-  uint16_t name_index;
-  uint16_t descriptor_index;
-};
-struct jvmclass_method_handle_entry {
-  uint16_t reference_index;
-  uint8_t reference_kind;
-};
-struct jvmclass_dynamic_entry {
-  uint16_t bootstrap_method_attr_index;
-  uint16_t name_and_type_index;
-};
-struct jvmclass_ref_entry {
-  uint16_t class_index;
-  uint16_t name_and_type_index;
-};
-struct jvmclass_index_entry { uint16_t index; };
-struct jvmclass_int_entry { int num; };
-struct jvmclass_float_entry { float num; };
-struct jvmclass_long_entry { long num; };
-struct jvmclass_double_entry { double num; };
-
-union jvmclass_entry {
-  struct jvmclass_utf8_entry utf8;
-  struct jvmclass_name_and_type_entry name_and_type;
-  struct jvmclass_method_handle_entry method_handle;
-  struct jvmclass_dynamic_entry dynamic;
-  struct jvmclass_ref_entry ref;
-  struct jvmclass_index_entry index;
-  struct jvmclass_int_entry u4;
-  struct jvmclass_float_entry f4;
-  struct jvmclass_long_entry u8;
-  struct jvmclass_double_entry f8;
-} __attribute__((packed, aligned(1)));
 
 struct jvm_class_loaded_constant_pool_entry {
-  union jvmclass_entry entry;
+  union jvmclass_loaded_entry {
+    struct jvmclass_loaded_utf8_entry {
+      char* bytes;
+      uint16_t length;
+    } __attribute__((packed, aligned(1))) utf8;
+    struct jvmclass_loaded_name_and_type_entry {
+      uint16_t name_index;
+      uint16_t descriptor_index;
+    } name_and_type;
+    struct jvmclass_loaded_method_handle_entry {
+      uint16_t reference_index;
+      uint8_t reference_kind;
+    } method_handle;
+    struct jvmclass_loaded_dynamic_entry {
+      uint16_t bootstrap_method_attr_index;
+      uint16_t name_and_type_index;
+    } dynamic;
+    struct jvmclass_loaded_ref_entry {
+      uint16_t class_index;
+      uint16_t name_and_type_index;
+    } ref;
+    struct jvmclass_loaded_index_entry { uint16_t index; } index;
+    struct jvmclass_loaded_int_entry { int num; } u4;
+    struct jvmclass_loaded_float_entry { float num; } f4;
+    struct jvmclass_loaded_long_entry { long num; } u8;
+    struct jvmclass_loaded_double_entry { double num; } f8;
+  } __attribute__((packed, aligned(1))) entry;
   uint8_t tag;
 };
