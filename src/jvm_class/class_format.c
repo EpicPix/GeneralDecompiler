@@ -17,6 +17,7 @@ static struct jvm_class_loaded_attribute* arch_load_attributes(uint8_t* code, in
     void* data = malloc(attributes[i].length);
     memcpy(data, code + *index, attributes[i].length);
     attributes[i].bytes = data;
+    *index += attributes[i].length;
   }
   return attributes;
 }
