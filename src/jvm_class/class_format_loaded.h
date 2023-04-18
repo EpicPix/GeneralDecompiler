@@ -25,21 +25,21 @@ struct jvm_class_loaded_method {
 };
 
 struct jvm_class_loaded_file {
+  struct jvm_class_loaded_constant_pool_entry* constant_pool_entries;
+  uint16_t* interfaces;
+  struct jvm_class_loaded_field* fields;
+  struct jvm_class_loaded_method* methods;
+  struct jvm_class_loaded_attribute* attributes;
   uint16_t minor_version;
   uint16_t major_version;
-  int constant_pool_count;
-  struct jvm_class_loaded_constant_pool_entry* constant_pool_entries;
+  uint16_t constant_pool_count;
   uint16_t access_flags;
   uint16_t this_class;
   uint16_t super_class;
   uint16_t interface_count;
-  uint16_t* interfaces;
   uint16_t field_count;
-  struct jvm_class_loaded_field* fields;
   uint16_t method_count;
-  struct jvm_class_loaded_method* methods;
   uint16_t attribute_count;
-  struct jvm_class_loaded_attribute* attributes;
 };
 
 
