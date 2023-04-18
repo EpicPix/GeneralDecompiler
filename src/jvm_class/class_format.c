@@ -249,6 +249,31 @@ static void* arch_prepare_data(void* loaded_data) {
     }
   }
 
+  memset(&cf->access_flags, 0, sizeof(cf->access_flags));
+  cf->access_flags.is_public = (cfl->access_flags & 0x0001) != 0;
+  cf->access_flags.is_final = (cfl->access_flags & 0x0010) != 0;
+  cf->access_flags.is_super = (cfl->access_flags & 0x0020) != 0;
+  cf->access_flags.is_interface = (cfl->access_flags & 0x0200) != 0;
+  cf->access_flags.is_abstract = (cfl->access_flags & 0x0400) != 0;
+  cf->access_flags.is_synchronized = (cfl->access_flags & 0x1000) != 0;
+  cf->access_flags.is_annotation = (cfl->access_flags & 0x2000) != 0;
+  cf->access_flags.is_enum = (cfl->access_flags & 0x4000) != 0;
+  cf->access_flags.is_module = (cfl->access_flags & 0x8000) != 0;
+
+  cf->this_class_name = cf->constant_pool_entries[cfl->this_class - 1].entry.index.entry;
+  cf->super_class_name = cfl->super_class == 0 ? NULL : cf->constant_pool_entries[cfl->super_class - 1].entry.index.entry;
+
+  cf->interface_count = cfl->interface_count;
+  cf->interfaces = malloc(sizeof(struct jvmclass_prepared_utf8_entry*) * cf->interface_count);
+  for(int i = 0; i<cf->interface_count; i++) {
+    cf->interfaces[i] = cf->constant_pool_entries[cfl->interfaces[i] - 1].entry.index.entry;
+  }
+
+  cf->field_count = cfl->field_count;
+  cf->method_count = cfl->method_count;
+  cf->attribute_count = cfl->attribute_count;
+
+
   return cf;
 }
 

@@ -51,7 +51,7 @@ struct jvm_class_prepared_file {
   struct jvm_class_prepared_constant_pool_entry* constant_pool_entries;
   struct jvmclass_prepared_utf8_entry* this_class_name;
   struct jvmclass_prepared_utf8_entry* super_class_name;
-  struct jvmclass_prepared_utf8_entry* interfaces;
+  struct jvmclass_prepared_utf8_entry** interfaces;
   struct jvm_class_prepared_field* fields;
   struct jvm_class_prepared_method* methods;
   struct jvm_class_prepared_attribute* attributes;
