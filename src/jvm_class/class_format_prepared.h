@@ -26,22 +26,22 @@ struct jvm_class_prepared_access_flags {
 };
 
 struct jvm_class_prepared_attribute {
-  struct jvmclass_prepared_utf8_entry* name_index;
+  struct jvmclass_prepared_utf8_entry* name;
   uint32_t length;
   void* bytes;
 };
 
 struct jvm_class_prepared_field {
-  struct jvmclass_prepared_utf8_entry* name_index;
-  struct jvmclass_prepared_utf8_entry* descriptor_index;
+  struct jvmclass_prepared_utf8_entry* name;
+  struct jvmclass_prepared_utf8_entry* descriptor;
   struct jvm_class_prepared_attribute* attributes;
   struct jvm_class_prepared_access_flags access_flags;
   uint16_t attribute_count;
 };
 
 struct jvm_class_prepared_method {
-  struct jvmclass_prepared_utf8_entry* name_index;
-  struct jvmclass_prepared_utf8_entry* descriptor_index;
+  struct jvmclass_prepared_utf8_entry* name;
+  struct jvmclass_prepared_utf8_entry* descriptor;
   struct jvm_class_prepared_attribute* attributes;
   struct jvm_class_prepared_access_flags access_flags;
   uint16_t attribute_count;
