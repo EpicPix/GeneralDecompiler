@@ -151,8 +151,37 @@ static struct jvm_class_prepared_attribute* arch_prepare_convert_attributes(stru
       struct jvm_class_prepared_attribute* code_attr = malloc(sizeof(struct jvm_class_prepared_attribute));
       code_attr->type = JVMCLASS_ATTRIBUTE_CODE;
       code_attr->next = NULL;
+      void* loaded_bytes = loaded_attributes[i].bytes;
+      uint32_t loaded_length = loaded_attributes[i].length;
 
+      struct jvm_class_prepared_attribute_code* code = &code_attr->data.code;
+      int read_index = 0;
+      code->max_stack = read_word_be(loaded_bytes, &read_index, loaded_length);
+      code->max_locals = read_word_be(loaded_bytes, &read_index, loaded_length);
+      code->code_length = read_int_be(loaded_bytes, &read_index, loaded_length);
+      if(read_index + code->code_length > loaded_length) {
+        fprintf(stderr, "Cannot read %d bytes from index %d\n", code->code_length, read_index);
+        exit(1);
+      }
+      code->code = malloc(code->code_length);
+      memcpy(code->code, (char*) loaded_bytes + read_index, code->code_length);
+      read_index += code->code_length;
 
+      code->exception_table_length = read_word_be(loaded_bytes, &read_index, loaded_length);
+      code->exception_table = malloc(sizeof(struct jvm_class_prepared_attribute_code_exception_table) * code->exception_table_length);
+      for(int i = 0; i<code->exception_table_length; i++) {
+        struct jvm_class_prepared_attribute_code_exception_table* table = &code->exception_table[i];
+        table->start_pc = read_word_be(loaded_bytes, &read_index, loaded_length);
+        table->end_pc = read_word_be(loaded_bytes, &read_index, loaded_length);
+        table->handler_pc = read_word_be(loaded_bytes, &read_index, loaded_length);
+        int catch_type = read_word_be(loaded_bytes, &read_index, loaded_length);
+        if(catch_type == 0) table->catch_type = NULL;
+        else table->catch_type = cf->constant_pool_entries[catch_type - 1].entry.index.entry;
+      }
+
+      int attribute_count = read_word_be(loaded_bytes, &read_index, loaded_length);
+      struct jvm_class_loaded_attribute* loaded_attributes = arch_load_attributes(loaded_bytes, &read_index, loaded_length, attribute_count);
+      code->attributes = arch_prepare_convert_attributes(cf, loaded_attributes, attribute_count);
 
       if(current_attr) current_attr->next = code_attr;
       current_attr = code_attr;

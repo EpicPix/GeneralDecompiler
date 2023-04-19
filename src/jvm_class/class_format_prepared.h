@@ -32,7 +32,18 @@ enum jvm_class_prepared_attribute_type {
 struct jvm_class_prepared_attribute {
   union {
     struct jvm_class_prepared_attribute_code {
-
+      uint16_t max_stack;
+      uint16_t max_locals;
+      uint16_t exception_table_length;
+      uint32_t code_length;
+      uint8_t* code;
+      struct jvm_class_prepared_attribute_code_exception_table {
+        uint16_t start_pc;
+        uint16_t end_pc;
+        uint16_t handler_pc;
+        struct jvmclass_prepared_utf8_entry* catch_type;
+      } *exception_table;
+      struct jvm_class_prepared_attribute* attributes;
     } code;
   } data;
   struct jvm_class_prepared_attribute* next;
