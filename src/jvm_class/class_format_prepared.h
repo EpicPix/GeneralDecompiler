@@ -97,6 +97,6 @@ struct jvm_class_prepared_constant_pool_entry {
     struct jvmclass_prepared_float_entry { float num; } f4;
     struct jvmclass_prepared_long_entry { long num; } u8;
     struct jvmclass_prepared_double_entry { double num; } f8;
-  } __attribute__((packed, aligned(1))) entry;
+  } entry;
   uint8_t tag;
 };

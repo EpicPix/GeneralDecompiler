@@ -207,7 +207,7 @@ static void* arch_prepare_data(void* loaded_data) {
         fprintf(stderr, "Invalid tag\n");
         exit(1);
       }
-      entry->entry.index.entry = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[index_loc];
+      entry->entry.index.entry = &cf->constant_pool_entries[index_loc].entry.utf8;
       break;
     }
     case 16:
@@ -220,7 +220,7 @@ static void* arch_prepare_data(void* loaded_data) {
         fprintf(stderr, "Invalid tag\n");
         exit(1);
       }
-      entry->entry.index.entry = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[index_loc];
+      entry->entry.index.entry = &cf->constant_pool_entries[index_loc].entry.utf8;
       break;
     }
     case 9:
@@ -241,8 +241,8 @@ static void* arch_prepare_data(void* loaded_data) {
         fprintf(stderr, "Invalid tag\n");
         exit(1);
       }
-      entry->entry.ref.class_name = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[class_name_loc];
-      entry->entry.ref.name_and_type = (struct jvmclass_prepared_name_and_type_entry*) &cf->constant_pool_entries[name_and_type_loc];
+      entry->entry.ref.class_name = &cf->constant_pool_entries[class_name_loc].entry.utf8;
+      entry->entry.ref.name_and_type = &cf->constant_pool_entries[name_and_type_loc].entry.name_and_type;
       break;
     }
     case 12:
@@ -254,8 +254,8 @@ static void* arch_prepare_data(void* loaded_data) {
         fprintf(stderr, "Invalid tag\n");
         exit(1);
       }
-      entry->entry.name_and_type.name = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[name_loc];
-      entry->entry.name_and_type.descriptor = (struct jvmclass_prepared_utf8_entry*) &cf->constant_pool_entries[descriptor_loc];
+      entry->entry.name_and_type.name = &cf->constant_pool_entries[name_loc].entry.utf8;
+      entry->entry.name_and_type.descriptor = &cf->constant_pool_entries[descriptor_loc].entry.utf8;
       break;
     }
     case 15:
@@ -272,7 +272,7 @@ static void* arch_prepare_data(void* loaded_data) {
         exit(1);
       }
       entry->entry.dynamic.bootstrap_method_attr_index = cfl->constant_pool_entries[i].entry.dynamic.bootstrap_method_attr_index;
-      entry->entry.dynamic.name_and_type = (struct jvmclass_prepared_name_and_type_entry*) &cf->constant_pool_entries[name_and_type_loc];
+      entry->entry.dynamic.name_and_type = &cf->constant_pool_entries[name_and_type_loc].entry.name_and_type;
       break;
     }
     }
