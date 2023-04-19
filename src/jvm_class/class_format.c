@@ -299,7 +299,52 @@ static void* arch_prepare_data(void* loaded_data) {
   }
 
   cf->field_count = cfl->field_count;
+  cf->fields = malloc(sizeof(struct jvm_class_prepared_field) * cf->field_count);
+  for(int i = 0; i<cf->field_count; i++) {
+    struct jvm_class_loaded_field* lfield = &cfl->fields[i];
+    struct jvm_class_prepared_field* field = &cf->fields[i];
+
+    field->name = &cf->constant_pool_entries[lfield->name_index - 1].entry.utf8;
+    field->descriptor = &cf->constant_pool_entries[lfield->descriptor_index - 1].entry.utf8;
+    memset(&field->access_flags, 0, sizeof(field->access_flags));
+    field->access_flags.is_public = (lfield->access_flags & 0x0001) != 0;
+    field->access_flags.is_private = (lfield->access_flags & 0x0002) != 0;
+    field->access_flags.is_protected = (lfield->access_flags & 0x0004) != 0;
+    field->access_flags.is_static = (lfield->access_flags & 0x0008) != 0;
+    field->access_flags.is_final = (lfield->access_flags & 0x0010) != 0;
+    field->access_flags.is_volatile = (lfield->access_flags & 0x0040) != 0;
+    field->access_flags.is_transient = (lfield->access_flags & 0x0080) != 0;
+    field->access_flags.is_synthetic = (lfield->access_flags & 0x1000) != 0;
+    field->access_flags.is_enum = (lfield->access_flags & 0x4000) != 0;
+
+    field->attributes = arch_prepare_convert_attributes(cf, lfield->attributes, lfield->attribute_count);
+  }
+
   cf->method_count = cfl->method_count;
+  cf->methods = malloc(sizeof(struct jvm_class_prepared_method) * cf->method_count);
+  for(int i = 0; i<cf->method_count; i++) {
+    struct jvm_class_loaded_method* lmethod = &cfl->methods[i];
+    struct jvm_class_prepared_method* method = &cf->methods[i];
+
+    method->name = &cf->constant_pool_entries[lmethod->name_index - 1].entry.utf8;
+    method->descriptor = &cf->constant_pool_entries[lmethod->descriptor_index - 1].entry.utf8;
+    memset(&method->access_flags, 0, sizeof(lmethod->access_flags));
+    method->access_flags.is_public = (lmethod->access_flags & 0x0001) != 0;
+    method->access_flags.is_private = (lmethod->access_flags & 0x0002) != 0;
+    method->access_flags.is_protected = (lmethod->access_flags & 0x0004) != 0;
+    method->access_flags.is_static = (lmethod->access_flags & 0x0008) != 0;
+    method->access_flags.is_final = (lmethod->access_flags & 0x0010) != 0;
+    method->access_flags.is_synchronized = (lmethod->access_flags & 0x0020) != 0;
+    method->access_flags.is_bridge = (lmethod->access_flags & 0x0040) != 0;
+    method->access_flags.is_varargs = (lmethod->access_flags & 0x0080) != 0;
+    method->access_flags.is_native = (lmethod->access_flags & 0x0100) != 0;
+    method->access_flags.is_abstract = (lmethod->access_flags & 0x0100) != 0;
+    method->access_flags.is_strict = (lmethod->access_flags & 0x0800) != 0;
+    method->access_flags.is_synthetic = (lmethod->access_flags & 0x1000) != 0;
+
+    method->attributes = arch_prepare_convert_attributes(cf, lmethod->attributes, lmethod->attribute_count);
+  }
+
   cf->attributes = arch_prepare_convert_attributes(cf, cfl->attributes, cfl->attribute_count);
 
   return cf;
