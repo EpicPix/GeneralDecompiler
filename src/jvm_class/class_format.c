@@ -1,3 +1,4 @@
+#include <alloca.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -140,6 +141,34 @@ static void* arch_load_data(uint8_t* code, int code_length) {
   return cf;
 }
 
+static struct jvm_class_prepared_attribute* arch_prepare_convert_attributes(struct jvm_class_prepared_file* cf, struct jvm_class_loaded_attribute* loaded_attributes, int loaded_attribute_count) {
+  struct jvm_class_prepared_attribute* start_attr = NULL;
+  struct jvm_class_prepared_attribute* current_attr = NULL;
+
+  for(int i = 0; i<loaded_attribute_count; i++) {
+    struct jvmclass_prepared_utf8_entry name = cf->constant_pool_entries[loaded_attributes[i].name_index - 1].entry.utf8;
+    if(name.length == 4 && memcmp("Code", name.bytes, name.length) == 0) {
+      struct jvm_class_prepared_attribute* code_attr = malloc(sizeof(struct jvm_class_prepared_attribute));
+      code_attr->type = JVMCLASS_ATTRIBUTE_CODE;
+      code_attr->next = NULL;
+
+
+
+      if(current_attr) current_attr->next = code_attr;
+      current_attr = code_attr;
+      if(start_attr == NULL) start_attr = code_attr;
+    }else {
+#ifdef DEBUG
+      char* null_terminated_str = alloca(name.length + 1);
+      memcpy(null_terminated_str, name.bytes, name.length);
+      null_terminated_str[name.length] = '\0';
+      ARCH_LOG("Unknown attribute: '%s', skipping", null_terminated_str);
+#endif
+    }
+  }
+  return start_attr;
+}
+
 static void* arch_prepare_data(void* loaded_data) {
   struct jvm_class_loaded_file* cfl = (struct jvm_class_loaded_file*) loaded_data;
   struct jvm_class_prepared_file* cf = malloc(sizeof(struct jvm_class_prepared_file));
@@ -271,8 +300,7 @@ static void* arch_prepare_data(void* loaded_data) {
 
   cf->field_count = cfl->field_count;
   cf->method_count = cfl->method_count;
-  cf->attribute_count = cfl->attribute_count;
-
+  cf->attributes = arch_prepare_convert_attributes(cf, cfl->attributes, cfl->attribute_count);
 
   return cf;
 }

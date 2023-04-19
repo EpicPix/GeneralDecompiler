@@ -25,10 +25,18 @@ struct jvm_class_prepared_access_flags {
   bool is_strict : 1;
 };
 
+enum jvm_class_prepared_attribute_type {
+  JVMCLASS_ATTRIBUTE_CODE
+};
+
 struct jvm_class_prepared_attribute {
-  struct jvmclass_prepared_utf8_entry* name;
-  uint32_t length;
-  void* bytes;
+  union {
+    struct jvm_class_prepared_attribute_code {
+
+    } code;
+  } data;
+  struct jvm_class_prepared_attribute* next;
+  enum jvm_class_prepared_attribute_type type;
 };
 
 struct jvm_class_prepared_field {
@@ -36,7 +44,6 @@ struct jvm_class_prepared_field {
   struct jvmclass_prepared_utf8_entry* descriptor;
   struct jvm_class_prepared_attribute* attributes;
   struct jvm_class_prepared_access_flags access_flags;
-  uint16_t attribute_count;
 };
 
 struct jvm_class_prepared_method {
@@ -44,7 +51,6 @@ struct jvm_class_prepared_method {
   struct jvmclass_prepared_utf8_entry* descriptor;
   struct jvm_class_prepared_attribute* attributes;
   struct jvm_class_prepared_access_flags access_flags;
-  uint16_t attribute_count;
 };
 
 struct jvm_class_prepared_file {
@@ -61,7 +67,6 @@ struct jvm_class_prepared_file {
   uint16_t interface_count;
   uint16_t field_count;
   uint16_t method_count;
-  uint16_t attribute_count;
 };
 
 
