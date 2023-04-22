@@ -382,7 +382,7 @@ static void* arch_prepare_data(void* loaded_data) {
 
 static struct ir_data arch_generate_ir(void* prepared_data) {
   struct ir_symbol_table* symbol_table = malloc(sizeof(struct ir_symbol_table));
-  return (struct ir_data){ .symbol_table = symbol_table };
+  return (struct ir_data){ .symbol_table = symbol_table, .memory_page_start = NULL };
 }
 
 const arch_info arch_jvm = (const arch_info){

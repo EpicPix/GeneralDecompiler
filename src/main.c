@@ -41,7 +41,16 @@ int main(int argc, char** argv) {
   void* prepared = arch->prepare_data(loaded);
   DEBUG_LOG("Prepared data at address %p, generating IR...", prepared);
   struct ir_data ir_data_pre = arch->generate_ir(prepared);
-  DEBUG_LOG("Generated IR. Symbol table at %p, optimizing IR...", ir_data_pre.symbol_table);
+  DEBUG_LOG("Generated IR. Symbol table at %p", ir_data_pre.symbol_table);
+#ifdef DEBUG
+  DEBUG_LOG("[memory_pages] %s", "Printing memory pages");
+  struct ir_memory_page* memory_page = ir_data_pre.memory_page_start;
+  while(memory_page != NULL) {
+    DEBUG_LOG("[memory_pages] Address: %016lx  Length: %016lx", memory_page->start_address, memory_page->length);
+    memory_page = memory_page->next_page;
+  }
+#endif
+  DEBUG_LOG("%s", "Optmizing IR...");
   struct ir_data ir_data = ir_optimize(ir_data_pre);
 #ifdef DEBUG
   DEBUG_LOG("%s", "Printing optimized IR");
