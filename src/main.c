@@ -40,15 +40,15 @@ int main(int argc, char** argv) {
   DEBUG_LOG("Loaded data at address %p, preparing data...", loaded);
   void* prepared = arch->prepare_data(loaded);
   DEBUG_LOG("Prepared data at address %p, generating IR...", prepared);
-  struct ir_data* ir_gen = arch->generate_ir(prepared);
-  DEBUG_LOG("Generated IR at address %p, optimizing IR...", ir_gen);
-  struct ir_data* ir = ir_optimize(ir_gen);
+  struct ir_data ir_data_pre = arch->generate_ir(prepared);
+  DEBUG_LOG("Generated IR. Symbol table at %p, optimizing IR...", ir_data_pre.symbol_table);
+  struct ir_data ir_data = ir_optimize(ir_data_pre);
 #ifdef DEBUG
   DEBUG_LOG("%s", "Printing optimized IR");
-  ir_print_instructions(ir);
+  ir_print_instructions(ir_data);
 #endif
-  DEBUG_LOG("Optimized IR at address %p, printing decompiled code...", ir);
-  ir_print_decompiled(ir);
+  DEBUG_LOG("Optimized IR. Symbol table at %p, printing decompiled code...", ir_data.symbol_table);
+  ir_print_decompiled(ir_data);
 
   free(data);
   close(fd);

@@ -379,8 +379,8 @@ static void* arch_prepare_data(void* loaded_data) {
   return cf;
 }
 
-static struct ir_data* arch_generate_ir(void* prepared_data) {
-  return NULL;
+static struct ir_data arch_generate_ir(void* prepared_data) {
+  return (struct ir_data){ .symbol_table = NULL };
 }
 
 const arch_info arch_jvm = (const arch_info){

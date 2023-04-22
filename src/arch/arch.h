@@ -5,7 +5,7 @@
 
 typedef void* (*arch_load_data_func)(uint8_t* code, int code_length);
 typedef void* (*arch_prepare_data_func)(void* loaded_data);
-typedef struct ir_data* (*arch_generate_ir_func)(void* prepared_data);
+typedef struct ir_data (*arch_generate_ir_func)(void* prepared_data);
 
 typedef struct arch_info {
   arch_load_data_func load_data;
