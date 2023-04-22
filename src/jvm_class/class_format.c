@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "IR.h"
 #include "class_format.h"
 #include "../byte_reader.h"
 #include "class_format_loaded.h"
@@ -380,7 +381,8 @@ static void* arch_prepare_data(void* loaded_data) {
 }
 
 static struct ir_data arch_generate_ir(void* prepared_data) {
-  return (struct ir_data){ .symbol_table = NULL };
+  struct ir_symbol_table* symbol_table = malloc(sizeof(struct ir_symbol_table));
+  return (struct ir_data){ .symbol_table = symbol_table };
 }
 
 const arch_info arch_jvm = (const arch_info){
