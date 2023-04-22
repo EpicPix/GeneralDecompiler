@@ -17,9 +17,22 @@ struct ir_symbol_table {
 
 };
 
+struct ir_instruction_list {
+  uint64_t start_address;
+  uint64_t instruction_count;
+  union {
+    struct ir_instruction_low* low_level;
+    struct ir_instruction_high* high_level;
+  } instructions;
+  struct ir_instruction_list* next_instructions;
+  struct ir_instruction_list* prev_instructions;
+};
+
 struct ir_data {
   struct ir_symbol_table* symbol_table;
   struct ir_memory_page* memory_page_start;
+  struct ir_instruction_list* instructions;
+  bool is_high_level;
 };
 
 struct ir_data ir_optimize(struct ir_data data);
