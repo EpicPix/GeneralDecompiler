@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "IR_high_level.h"
+#include "IR_low_level.h"
+
 struct ir_symbol_table {
 
 };
