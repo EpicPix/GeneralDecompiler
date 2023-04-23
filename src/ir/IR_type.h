@@ -13,7 +13,7 @@ enum ir_type_definition_type {
 struct ir_type {
   bool is_builtin : 1;
   union {
-    uint32_t symbol_data;
+    uint32_t composed_type_index;
     struct {
       uint16_t size;
       enum ir_type_definition_type type : 16;
@@ -55,5 +55,5 @@ static struct ir_type ir_type_i64 = { .is_builtin = true, .built_in = { .size = 
 static struct ir_type ir_type_f64 = { .is_builtin = true, .built_in = { .size = 64, .type = ir_type_definition_type_float } };
 
 static bool ir_equal_types(struct ir_type a, struct ir_type b) {
-  return a.is_builtin == b.is_builtin && a.symbol_data == b.symbol_data;
+  return a.is_builtin == b.is_builtin && a.composed_type_index == b.composed_type_index;
 }

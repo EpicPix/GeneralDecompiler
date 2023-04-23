@@ -31,6 +31,7 @@ struct ir_instruction_list {
 
 struct ir_data {
   struct ir_symbol_table* symbol_table;
+  struct ir_type_table* type_table;
   struct ir_memory_page* memory_page_start;
   struct ir_instruction_list* instructions;
   bool is_high_level;
