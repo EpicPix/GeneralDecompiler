@@ -5,6 +5,7 @@
 
 #include "IR_high_level.h"
 #include "IR_low_level.h"
+#include "IR_type.h"
 
 struct ir_memory_page {
   uint64_t start_address;

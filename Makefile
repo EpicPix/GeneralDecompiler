@@ -9,10 +9,10 @@ clean:
 	rm -f $(subst .test,.test.run,$(TESTS)) $(subst .test,.o,$(TESTS))
 
 decompiler_debug: $(SRC)
-	gcc -o out/decompiler_debug $^ -g -O1 -Wall -Wextra -Wno-unused-parameter -DDEBUG
+	gcc -o out/decompiler_debug $^ -g -O1 -Wall -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -DDEBUG
 
 out/decompiler: $(SRC)
-	gcc -o $@ $^ -g -O1 -Wall -Wextra -Wno-unused-parameter
+	gcc -o $@ $^ -g -O1 -Wall -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable
 
 out/test_runner: tests/test.c
 	gcc tests/test.c -o out/test_runner -g -O1 -Wall -Wextra -Wno-unused-parameter
