@@ -49,6 +49,8 @@ int main(int argc, char** argv) {
     DEBUG_LOG("memory_pages", "Address: %016lx  Length: %016lx", memory_page->start_address, memory_page->length);
     memory_page = memory_page->next_page;
   }
+  DEBUG_LOG("main", "%s", "Printing unoptimized IR");
+  ir_print_instructions(ir_data_pre);
 #endif
   DEBUG_LOG("main", "%s", "Optmizing IR...");
   struct ir_data ir_data = ir_optimize(ir_data_pre);
