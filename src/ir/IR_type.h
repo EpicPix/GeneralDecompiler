@@ -8,7 +8,7 @@ enum ir_type_definition_type {
   ir_type_definition_type_int_unsigned = 1,
   ir_type_definition_type_int_signed = 2,
   ir_type_definition_type_float = 3,
-}
+};
 
 struct ir_type {
   bool is_symbol : 1;
