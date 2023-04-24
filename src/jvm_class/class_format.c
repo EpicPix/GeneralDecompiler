@@ -381,8 +381,10 @@ static void* arch_prepare_data(void* loaded_data) {
 }
 
 static struct ir_data arch_generate_ir(void* prepared_data) {
+  struct jvm_class_prepared_file* cf = (struct jvm_class_prepared_file*) prepared_data;
   struct ir_symbol_table* symbol_table = malloc(sizeof(struct ir_symbol_table));
-  return (struct ir_data){ .symbol_table = symbol_table, .type_table = NULL, .memory_page_start = NULL, .instructions = NULL, .is_high_level = true };
+  struct ir_type_table* type_table = ir_type_create_table(NULL);
+  return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = NULL, .is_high_level = true };
 }
 
 const arch_info arch_jvm = (const arch_info){

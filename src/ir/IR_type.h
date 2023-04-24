@@ -36,8 +36,8 @@ struct ir_type_table {
   int start_index;
   int entry_count;
   int allocated_count;
-  struct ir_type_composed** types;
   struct ir_type_table* next;
+  struct ir_type_composed* types[];
 };
 
 static struct ir_type ir_type_unknown = { .is_builtin = true, .built_in = { .size = 0, .type = ir_type_definition_type_unknown } };
@@ -57,3 +57,5 @@ static struct ir_type ir_type_f64 = { .is_builtin = true, .built_in = { .size = 
 static bool ir_equal_types(struct ir_type a, struct ir_type b) {
   return a.is_builtin == b.is_builtin && a.composed_type_index == b.composed_type_index;
 }
+
+struct ir_type_table* ir_type_create_table(struct ir_type_table* prev);
