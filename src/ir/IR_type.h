@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 enum ir_type_definition_type {
-  ir_type_definition_type_unknown = 0,
+  ir_type_definition_type_void = 0,
   ir_type_definition_type_int_unsigned = 1,
   ir_type_definition_type_int_signed = 2,
   ir_type_definition_type_float = 3,
@@ -40,7 +40,7 @@ struct ir_type_table {
   struct ir_type_composed* types[];
 };
 
-static ir_type_t ir_type_unknown = { .is_builtin = true, .built_in = { .size = 0, .type = ir_type_definition_type_unknown } };
+static ir_type_t ir_type_void = { .is_builtin = true, .built_in = { .size = 0, .type = ir_type_definition_type_void } };
 static ir_type_t ir_type_u8 = { .is_builtin = true, .built_in = { .size = 8, .type = ir_type_definition_type_int_unsigned } };
 static ir_type_t ir_type_i8 = { .is_builtin = true, .built_in = { .size = 8, .type = ir_type_definition_type_int_signed } };
 static ir_type_t ir_type_f8 = { .is_builtin = true, .built_in = { .size = 8, .type = ir_type_definition_type_float } };
