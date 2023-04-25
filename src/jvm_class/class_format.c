@@ -211,8 +211,10 @@ static void* arch_prepare_data(void* loaded_data) {
     entry->tag = cfl->constant_pool_entries[i].tag;
     switch(entry->tag) {
     case 1:
-      entry->entry.utf8.bytes = cfl->constant_pool_entries[i].entry.utf8.bytes;
       entry->entry.utf8.length = cfl->constant_pool_entries[i].entry.utf8.length;
+      entry->entry.utf8.bytes = malloc(entry->entry.utf8.length + 1);
+      memcpy(entry->entry.utf8.bytes, cfl->constant_pool_entries[i].entry.utf8.bytes, entry->entry.utf8.length);
+      entry->entry.utf8.bytes[entry->entry.utf8.length] = '\0';
       break;
     case 3:
       entry->entry.u4.num = cfl->constant_pool_entries[i].entry.u4.num;
@@ -384,6 +386,12 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
   struct jvm_class_prepared_file* cf = (struct jvm_class_prepared_file*) prepared_data;
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_type_table* type_table = ir_type_create_table(NULL);
+
+  for(int i = 0; i<cf->method_count; i++) {
+    struct jvm_class_prepared_method* method = &cf->methods[i];
+    ARCH_LOG("Generating IR for method '%s' with descriptor '%s'", method->name->bytes, method->descriptor->bytes);
+  }
+
   return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = NULL, .is_high_level = true };
 }
 
