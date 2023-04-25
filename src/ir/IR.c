@@ -20,6 +20,7 @@ struct ir_type_table* ir_type_create_table(struct ir_type_table* prev) {
   int alloc_count = 256;
 
   struct ir_type_table* type_table = calloc(sizeof(struct ir_type_table) + alloc_count * sizeof(struct ir_type_composed*), 1);
+  type_table->start_index = start;
   type_table->allocated_count = alloc_count;
   if(prev) prev->next = type_table;
   return type_table;
