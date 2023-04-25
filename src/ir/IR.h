@@ -22,9 +22,10 @@ struct ir_instruction_list {
     struct ir_instruction_low* low_level;
     struct ir_instruction_high* high_level;
   } instructions;
-  struct ir_instruction_list* next_instructions;
-  struct ir_instruction_list* prev_instructions;
+  struct ir_instruction_list* next;
 };
+
+struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level);
 
 struct ir_data {
   struct ir_symbol_table* symbol_table;

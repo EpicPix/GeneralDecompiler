@@ -14,6 +14,18 @@ void ir_print_decompiled(struct ir_data data) {
 }
 
 
+struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level) {
+  struct ir_instruction_list* list = malloc(sizeof(struct ir_instruction_list));
+  if(high_level) {
+    list->instructions.high_level = malloc(instruction_count * sizeof(struct ir_instruction_high));
+  }else {
+    list->instructions.low_level = malloc(instruction_count * sizeof(struct ir_instruction_low));
+  }
+  list->instruction_count = instruction_count;
+  prev->next = list;
+  list->start_address = start_address;
+  return list;
+}
 
 struct ir_type_table* ir_type_create_table(struct ir_type_table* prev) {
   int start = prev ? (prev->start_index + prev->allocated_count) : 0;
