@@ -150,7 +150,7 @@ static struct jvm_class_prepared_attribute* arch_prepare_convert_attributes(stru
     struct jvmclass_prepared_utf8_entry name = cf->constant_pool_entries[loaded_attributes[i].name_index - 1].entry.utf8;
     if(name.length == 4 && memcmp("Code", name.bytes, name.length) == 0) {
       struct jvm_class_prepared_attribute* code_attr = malloc(sizeof(struct jvm_class_prepared_attribute));
-      code_attr->type = JVMCLASS_ATTRIBUTE_CODE;
+      code_attr->type = jvm_class_prepared_attribute_type_code;
       code_attr->next = NULL;
       void* loaded_bytes = loaded_attributes[i].bytes;
       uint32_t loaded_length = loaded_attributes[i].length;
@@ -390,6 +390,23 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
   for(int i = 0; i<cf->method_count; i++) {
     struct jvm_class_prepared_method* method = &cf->methods[i];
     ARCH_LOG("Generating IR for method '%s' with descriptor '%s'", method->name->bytes, method->descriptor->bytes);
+    if(method->access_flags.is_abstract) {
+      ARCH_LOG("%s", "Method skipped, method is defined as abstract");
+      continue;
+    }
+    struct jvm_class_prepared_attribute_code* code = NULL;
+    struct jvm_class_prepared_attribute* iter_attr = method->attributes;
+    while(iter_attr != NULL) {
+      if(iter_attr->type == jvm_class_prepared_attribute_type_code) {
+        code = &iter_attr->data.code;
+        break;
+      }
+      iter_attr = iter_attr->next;
+    }
+    if(code == NULL) {
+      ARCH_LOG("%s", "Method skipped, method is missing Code attribute");
+      continue;
+    }
   }
 
   return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = NULL, .is_high_level = true };

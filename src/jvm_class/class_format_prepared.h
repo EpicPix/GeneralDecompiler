@@ -26,7 +26,7 @@ struct jvm_class_prepared_access_flags {
 };
 
 enum jvm_class_prepared_attribute_type {
-  JVMCLASS_ATTRIBUTE_CODE
+  jvm_class_prepared_attribute_type_code
 };
 
 struct jvm_class_prepared_attribute {
