@@ -13,6 +13,7 @@ enum ir_instruction_high_location_type {
   ir_instruction_high_location_type_register,
   ir_instruction_high_location_type_address,
   ir_instruction_high_location_type_instruction,
+  ir_instruction_high_location_type_inherited,
 };
 
 struct ir_instruction_high_location {
@@ -54,3 +55,5 @@ struct ir_instruction_high {
 };
 
 struct ir_instruction_list* ir_instruction_add_instruction_high(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_high instr);
+
+struct ir_instruction_high* ir_instruction_alloc_high(struct ir_instruction_high data);

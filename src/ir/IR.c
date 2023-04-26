@@ -36,6 +36,8 @@ static void ir_print_instruction_high_location(struct ir_instruction_high_locati
     printf("<");
     ir_print_instruction_high_inl(location->data.instr);
     printf(">");
+  }else if(location->location_type == ir_instruction_high_location_type_inherited) {
+    printf("@^");
   }else {
     printf("?");
   }
@@ -45,6 +47,16 @@ static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
   if(instr->type == ir_instruction_high_type_push) {
     printf("push ");
     ir_print_instruction_high_location(&instr->data.i.input);
+  }else if(instr->type == ir_instruction_high_type_pop) {
+    printf("pop ");
+    ir_print_instruction_high_location(&instr->data.o.output);
+  }else if(instr->type == ir_instruction_high_type_add) {
+    printf("add ");
+    ir_print_instruction_high_location(&instr->data.oii.output);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputa);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputb);
   }
 }
 
@@ -113,4 +125,11 @@ struct ir_symbol_table* ir_symbol_create_table(struct ir_symbol_table* prev) {
   symbol_table->start_index = start;
   if(prev) prev->next = symbol_table;
   return symbol_table;
+}
+
+struct ir_instruction_high* ir_instruction_alloc_high(struct ir_instruction_high data) {
+  struct ir_instruction_high* allocated = malloc(sizeof(struct ir_instruction_high));
+  allocated->type = data.type;
+  allocated->data = data.data;
+  return allocated;
 }
