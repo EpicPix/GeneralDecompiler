@@ -52,3 +52,5 @@ struct ir_instruction_high {
     } o;
   } data;
 };
+
+struct ir_instruction_list* ir_instruction_add_instruction_high(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_high instr);

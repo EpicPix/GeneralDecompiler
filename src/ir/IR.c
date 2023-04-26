@@ -42,6 +42,15 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
   return list;
 }
 
+struct ir_instruction_list* ir_instruction_add_instruction_high(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_high instr) {
+  if(list->instruction_count >= list->allocated_count) {
+    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, true);
+  }
+  list->instructions.high_level[list->instruction_count] = instr;
+  list->instruction_count++;
+  return list;
+}
+
 struct ir_type_table* ir_type_create_table(struct ir_type_table* prev) {
   int start = prev ? (prev->start_index + prev->allocated_count) : 0;
   int alloc_count = 256;

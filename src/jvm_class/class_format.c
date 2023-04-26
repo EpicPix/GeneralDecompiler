@@ -387,9 +387,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_type_table* type_table = ir_type_create_table(NULL);
 
-  uint64_t current_address = 0x10000;
-  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, current_address, 1024, true);
-  current_address += 1024;
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, true);
 
   for(int i = 0; i<cf->method_count; i++) {
     struct jvm_class_prepared_method* method = &cf->methods[i];
@@ -410,6 +408,15 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
     if(code == NULL) {
       ARCH_LOG("%s", "Method skipped, method is missing Code attribute");
       continue;
+    }
+    for(uint32_t x = 0; x<code->code_length; x++) {
+      uint8_t opcode = code->code[x];
+      if(opcode == 0x04) { // iconst_1
+        instructions_start = ir_instruction_add_instruction_high(instructions_start, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_i32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 1 } } } } });
+        continue;
+      }
+      ARCH_LOG("Unknown opcode 0x%02x, stopping generation", opcode);
+      break;
     }
   }
 
