@@ -413,7 +413,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
     for(uint32_t x = 0; x<code->code_length; x++) {
       uint8_t opcode = code->code[x];
       if(opcode == 0x04) { // iconst_1
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_i32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 1 } } } } });
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 1 } } } } });
         continue;
       }
       ARCH_LOG("Unknown opcode 0x%02x, stopping generation", opcode);

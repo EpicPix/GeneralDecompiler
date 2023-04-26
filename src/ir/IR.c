@@ -7,8 +7,51 @@ struct ir_data ir_optimize(struct ir_data data) {
   return data;
 }
 
+static void ir_print_instruction_high_inl(struct ir_instruction_high* instr);
+static void ir_print_instruction_high_location(struct ir_instruction_high_location* location) {
+  printf("{:");
+  if(location->type.is_builtin) {
+    if(location->type.built_in.type == ir_type_definition_type_void) {
+      printf("v");
+    }else if(location->type.built_in.type == ir_type_definition_type_int_signed) {
+      printf("s%d", location->type.built_in.size);
+    }else if(location->type.built_in.type == ir_type_definition_type_int_unsigned) {
+      printf("u%d", location->type.built_in.size);
+    }else if(location->type.built_in.type == ir_type_definition_type_float) {
+      printf("f%d", location->type.built_in.size);
+    }else {
+      printf("%d-%d", location->type.built_in.type, location->type.built_in.size);
+    }
+  }else {
+    printf("%d", location->type.composed_type_index);
+  }
+  printf("} ");
+  if(location->location_type == ir_instruction_high_location_type_immediate) {
+    printf("%ld", location->data.imm);
+  }else if(location->location_type == ir_instruction_high_location_type_address) {
+    printf("*0x%016lx", location->data.addr);
+  }else if(location->location_type == ir_instruction_high_location_type_register) {
+    printf("@%ld", location->data.reg);
+  }else if(location->location_type == ir_instruction_high_location_type_instruction) {
+    printf("<");
+    ir_print_instruction_high_inl(location->data.instr);
+    printf(">");
+  }else {
+    printf("?");
+  }
+}
+
+static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
+  if(instr->type == ir_instruction_high_type_push) {
+    printf("push ");
+    ir_print_instruction_high_location(&instr->data.i.input);
+  }
+}
+
 static void ir_print_instruction_high(uint64_t addr, struct ir_instruction_high* instr) {
-  printf("0x%016lx: ???\n", addr);
+  printf("0x%016lx: ", addr);
+  ir_print_instruction_high_inl(instr);
+  printf("\n");
 }
 
 void ir_print_instructions(struct ir_data data) {
