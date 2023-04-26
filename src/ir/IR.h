@@ -18,6 +18,7 @@ struct ir_memory_page {
 struct ir_instruction_list {
   uint64_t start_address;
   uint64_t instruction_count;
+  uint64_t allocated_count;
   union {
     struct ir_instruction_low* low_level;
     struct ir_instruction_high* high_level;

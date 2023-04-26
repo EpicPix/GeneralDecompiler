@@ -1,12 +1,26 @@
 #include "IR.h"
+#include "../utils.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 struct ir_data ir_optimize(struct ir_data data) {
   return data;
 }
 
-void ir_print_instructions(struct ir_data data) {
+static void ir_print_instruction_high(uint64_t addr, struct ir_instruction_high* instr) {
+  printf("0x%016lx: ???\n", addr);
+}
 
+void ir_print_instructions(struct ir_data data) {
+  if(data.is_high_level) {
+    struct ir_instruction_list* list = data.instructions;
+    while(list != NULL) {
+      for(uint64_t i = 0; i<list->instruction_count; i++) {
+        ir_print_instruction_high(list->start_address + i, &list->instructions.high_level[i]);
+      }
+      list = list->next;
+    }
+  }
 }
 
 void ir_print_decompiled(struct ir_data data) {
@@ -21,8 +35,9 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
   }else {
     list->instructions.low_level = malloc(instruction_count * sizeof(struct ir_instruction_low));
   }
-  list->instruction_count = instruction_count;
-  prev->next = list;
+  list->allocated_count = instruction_count;
+  list->instruction_count = 0;
+  if(prev) prev->next = list;
   list->start_address = start_address;
   return list;
 }

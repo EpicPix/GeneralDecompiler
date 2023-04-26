@@ -387,6 +387,10 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_type_table* type_table = ir_type_create_table(NULL);
 
+  uint64_t current_address = 0x10000;
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, current_address, 1024, true);
+  current_address += 1024;
+
   for(int i = 0; i<cf->method_count; i++) {
     struct jvm_class_prepared_method* method = &cf->methods[i];
     ARCH_LOG("Generating IR for method '%s' with descriptor '%s'", method->name->bytes, method->descriptor->bytes);
@@ -409,7 +413,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
     }
   }
 
-  return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = NULL, .is_high_level = true };
+  return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = instructions_start, .is_high_level = true };
 }
 
 const arch_info arch_jvm = (const arch_info){
