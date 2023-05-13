@@ -40,20 +40,22 @@ int main(int argc, char** argv) {
   DEBUG_LOG("main", "Loaded data at address %p, preparing data...", loaded);
   void* prepared = arch->prepare_data(loaded);
   DEBUG_LOG("main", "Prepared data at address %p, generating IR...", prepared);
-  struct ir_data ir_data_pre = arch->generate_ir(prepared);
-  DEBUG_LOG("main", "Generated IR. Symbol table at %p", ir_data_pre.symbol_table);
+  struct ir_data ir_data_high = arch->generate_ir(prepared);
+  DEBUG_LOG("main", "Generated IR. Symbol table at %p", ir_data_high.symbol_table);
 #ifdef DEBUG
   DEBUG_LOG("memory_pages", "%s", "Printing memory pages");
-  struct ir_memory_page* memory_page = ir_data_pre.memory_page_start;
+  struct ir_memory_page* memory_page = ir_data_high.memory_page_start;
   while(memory_page != NULL) {
     DEBUG_LOG("memory_pages", "Address: %016lx  Length: %016lx", memory_page->start_address, memory_page->length);
     memory_page = memory_page->next_page;
   }
   DEBUG_LOG("main", "%s", "Printing unoptimized IR");
-  ir_print_instructions(ir_data_pre);
+  ir_print_instructions(ir_data_high);
 #endif
+  DEBUG_LOG("main", "%s", "Lowering IR...");
+  struct ir_data ir_data_low = ir_lower_level(ir_data_high);
   DEBUG_LOG("main", "%s", "Optmizing IR...");
-  struct ir_data ir_data = ir_optimize(ir_data_pre);
+  struct ir_data ir_data = ir_optimize(ir_data_low);
 #ifdef DEBUG
   DEBUG_LOG("main", "%s", "Printing optimized IR");
   ir_print_instructions(ir_data);
