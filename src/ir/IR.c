@@ -332,7 +332,7 @@ struct ir_type_table* ir_type_create_table(struct ir_type_table* prev) {
 
 struct ir_type_composed* ir_type_get_composed(uint32_t composed_type_id, struct ir_type_table* type_table) {
   while(type_table) {
-    if(type_table->start_index >= composed_type_id && type_table->start_index + type_table->entry_count > composed_type_id) {
+    if(type_table->start_index <= composed_type_id && type_table->start_index + type_table->entry_count < composed_type_id) {
       return type_table->types[composed_type_id - type_table->start_index];
     }
     type_table = type_table->next;
