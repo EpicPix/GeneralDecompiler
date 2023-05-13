@@ -103,10 +103,6 @@ struct ir_data ir_lower_level(struct ir_data data) {
   };
 }
 
-struct ir_data ir_optimize(struct ir_data data) {
-  return data;
-}
-
 static void ir_print_instruction_print_type(ir_type_t type) {
   printf("{:");
   if(type.is_builtin) {
