@@ -20,6 +20,7 @@ enum ir_instruction_low_location_type {
 enum ir_instruction_low_type {
     ir_instruction_low_type_mov,
     ir_instruction_low_type_mov_offsetout,
+    ir_instruction_low_type_mov_offsetin,
 };
 
 struct ir_instruction_low_location {
@@ -44,6 +45,11 @@ struct ir_instruction_low {
             struct ir_instruction_low_location output_offset;
             struct ir_instruction_low_location input;
         } movoout;
+        struct ir_instruction_low_data_mov_offsetin {
+            struct ir_instruction_low_location output;
+            struct ir_instruction_low_location input;
+            struct ir_instruction_low_location input_offset;
+        } movoin;
     } data;
 };
 
