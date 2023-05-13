@@ -4,7 +4,25 @@
 #include <stdio.h>
 
 struct ir_data ir_lower_level(struct ir_data data) {
-  return (struct ir_data){};
+  if(!data.is_high_level) return data;
+
+  struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
+  struct ir_instruction_list* instructions_high = data.instructions;
+
+  while(instructions_high) {
+//    for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
+//    }
+    instructions_high = instructions_high->next;
+  }
+
+  return (struct ir_data) {
+    .is_high_level = false,
+    .instructions = instructions_start,
+    .memory_page_start = data.memory_page_start,
+    .symbol_table = symbol_table,
+    .type_table = data.type_table
+  };
 }
 
 struct ir_data ir_optimize(struct ir_data data) {
