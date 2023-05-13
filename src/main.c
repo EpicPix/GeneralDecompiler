@@ -54,6 +54,10 @@ int main(int argc, char** argv) {
 #endif
   DEBUG_LOG("main", "%s", "Lowering IR...");
   struct ir_data ir_data_low = ir_lower_level(ir_data_high);
+#ifdef DEBUG
+  DEBUG_LOG("main", "%s", "Printing lowered IR");
+  ir_print_instructions(ir_data_low);
+#endif
   DEBUG_LOG("main", "%s", "Optmizing IR...");
   struct ir_data ir_data = ir_optimize(ir_data_low);
 #ifdef DEBUG

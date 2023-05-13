@@ -23,7 +23,7 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
     struct ir_instruction_high_data_i data = high_instruction->data.i;
   }else if(high_instruction->type == ir_instruction_high_type_push) {
     struct ir_instruction_high_data_i data = high_instruction->data.i;
-    translation_data->stack_data -= ir_type_bit_size(data.input.type, type_table);
+    translation_data->stack_data -= (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
         .type = ir_instruction_low_type_mov_offsetout,
@@ -68,25 +68,30 @@ struct ir_data ir_optimize(struct ir_data data) {
   return data;
 }
 
-static void ir_print_instruction_high_inl(struct ir_instruction_high* instr);
-static void ir_print_instruction_high_location(struct ir_instruction_high_location* location) {
+static void ir_print_instruction_print_type(ir_type_t type) {
   printf("{:");
-  if(location->type.is_builtin) {
-    if(location->type.built_in.type == ir_type_definition_type_void) {
+  if(type.is_builtin) {
+    if(type.built_in.type == ir_type_definition_type_void) {
       printf("v");
-    }else if(location->type.built_in.type == ir_type_definition_type_int_signed) {
-      printf("s%d", location->type.built_in.size);
-    }else if(location->type.built_in.type == ir_type_definition_type_int_unsigned) {
-      printf("u%d", location->type.built_in.size);
-    }else if(location->type.built_in.type == ir_type_definition_type_float) {
-      printf("f%d", location->type.built_in.size);
+    }else if(type.built_in.type == ir_type_definition_type_int_signed) {
+      printf("s%d", type.built_in.size);
+    }else if(type.built_in.type == ir_type_definition_type_int_unsigned) {
+      printf("u%d", type.built_in.size);
+    }else if(type.built_in.type == ir_type_definition_type_float) {
+      printf("f%d", type.built_in.size);
     }else {
-      printf("%d-%d", location->type.built_in.type, location->type.built_in.size);
+      printf("%d-%d", type.built_in.type, type.built_in.size);
     }
   }else {
-    printf("%d", location->type.composed_type_index);
+    printf("%d", type.composed_type_index);
   }
-  printf("} ");
+  printf("}");
+}
+
+static void ir_print_instruction_high_inl(struct ir_instruction_high* instr);
+static void ir_print_instruction_high_location(struct ir_instruction_high_location* location) {
+  ir_print_instruction_print_type(location->type);
+  printf(" ");
   if(location->location_type == ir_instruction_high_location_type_immediate) {
     printf("%ld", location->data.imm);
   }else if(location->location_type == ir_instruction_high_location_type_address) {
@@ -127,12 +132,57 @@ static void ir_print_instruction_high(uint64_t addr, struct ir_instruction_high*
   printf("\n");
 }
 
+static void ir_print_instruction_low_location(struct ir_instruction_low_location* location) {
+  ir_print_instruction_print_type(location->type);
+  printf(" ");
+  if(location->location_type == ir_instruction_low_location_type_immediate) {
+    printf("%ld", location->data.imm);
+  }else if(location->location_type == ir_instruction_low_location_type_address) {
+    printf("*0x%016lx", location->data.addr);
+  }else if(location->location_type == ir_instruction_low_location_type_register) {
+    printf("@%ld", location->data.reg);
+  }else if(location->location_type == ir_instruction_low_location_type_register_address) {
+    printf("*@%ld", location->data.reg);
+  }else {
+    printf("?");
+  }
+}
+
+static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
+  if(instr->type == ir_instruction_low_type_mov) {
+    printf("mov ");
+    ir_print_instruction_low_location(&instr->data.mov.output);
+    printf(", ");
+    ir_print_instruction_low_location(&instr->data.mov.input);
+  }else if(instr->type == ir_instruction_low_type_mov_offsetout) {
+    printf("movoo (");
+    ir_print_instruction_low_location(&instr->data.movoout.output);
+    printf(" + ");
+    ir_print_instruction_low_location(&instr->data.movoout.output_offset);
+    printf("), ");
+    ir_print_instruction_low_location(&instr->data.movoout.input);
+  }
+}
+
+static void ir_print_instruction_low(uint64_t addr, struct ir_instruction_low* instr) {
+  printf("0x%016lx: ", addr);
+  ir_print_instruction_low_inl(instr);
+  printf("\n");
+}
+
 void ir_print_instructions(struct ir_data data) {
+  struct ir_instruction_list* list = data.instructions;
   if(data.is_high_level) {
-    struct ir_instruction_list* list = data.instructions;
     while(list != NULL) {
       for(uint64_t i = 0; i<list->instruction_count; i++) {
         ir_print_instruction_high(list->start_address + i, &list->instructions.high_level[i]);
+      }
+      list = list->next;
+    }
+  }else {
+    while(list != NULL) {
+      for(uint64_t i = 0; i<list->instruction_count; i++) {
+        ir_print_instruction_low(list->start_address + i, &list->instructions.low_level[i]);
       }
       list = list->next;
     }
