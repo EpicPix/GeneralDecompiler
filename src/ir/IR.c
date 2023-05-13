@@ -267,7 +267,7 @@ struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list*
 
 struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level) {
   struct ir_instruction_list* list = ir_instruction_move_list(new_list, old_list, high_level);
-  ir_instruction_destroy_list(old_list);
+  ir_instruction_destroy_list(old_list, high_level);
   return list;
 }
 
