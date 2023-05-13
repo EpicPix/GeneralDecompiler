@@ -22,6 +22,7 @@ enum ir_instruction_low_type {
     ir_instruction_low_type_mov_offsetout,
     ir_instruction_low_type_mov_offsetin,
     ir_instruction_low_type_add,
+    ir_instruction_low_type_norelso,
 };
 
 struct ir_instruction_low_location {
@@ -56,6 +57,9 @@ struct ir_instruction_low {
             struct ir_instruction_low_location inputb;
             struct ir_instruction_low_location output;
         } add;
+        struct ir_instruction_low_data_norelso {
+            uint64_t reg;
+        } norel;
     } data;
 };
 
