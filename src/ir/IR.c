@@ -3,16 +3,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions) {
+  return output_instructions;
+}
+
 struct ir_data ir_lower_level(struct ir_data data) {
   if(!data.is_high_level) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
+  struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_high = data.instructions;
 
   while(instructions_high) {
-//    for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
-//    }
+    for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
+      instructions_current = ir_lower_level_unpack_instruction(instructions_high->instructions.high_level[i], instructions_current);
+    }
     instructions_high = instructions_high->next;
   }
 
@@ -116,6 +122,15 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
   list->instruction_count = 0;
   if(prev) prev->next = list;
   list->start_address = start_address;
+  return list;
+}
+
+struct ir_instruction_list* ir_instruction_add_instruction_low(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_low instr) {
+  if(list->instruction_count >= list->allocated_count) {
+    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, false);
+  }
+  list->instructions.low_level[list->instruction_count] = instr;
+  list->instruction_count++;
   return list;
 }
 
