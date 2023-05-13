@@ -16,6 +16,11 @@ static struct ir_instruction_low* ir_get_instruction(struct ir_instruction_list*
   return NULL;
 }
 
+struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions) {
+  struct ir_instruction_low* current_instruction = ir_get_instruction(input_instructions, current_location);
+  return ir_instruction_add_instruction_low(output, 1024, *current_instruction);
+}
+
 struct ir_data ir_optimize(struct ir_data data) {
   if(data.is_high_level) return data;
 
@@ -27,8 +32,7 @@ struct ir_data ir_optimize(struct ir_data data) {
   while(instructions_in) {
     for(uint64_t i = 0; i<instructions_in->instruction_count; i++) {
       uint64_t ptr = instructions_in->start_address + i;
-      struct ir_instruction_low* instr = ir_get_instruction(instructions_in, ptr);
-      instructions_current = ir_instruction_add_instruction_low(instructions_current, 1024, *instr);
+      instructions_current = ir_optimize_body(instructions_current, ptr, instructions_in);
     }
     instructions_in = instructions_in->next;
   }
