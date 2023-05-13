@@ -13,6 +13,8 @@ static struct ir_instruction_low_location ir_lower_level_unpack_location(struct 
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = high_location.data.imm } };
   if(high_location.location_type == ir_instruction_high_location_type_register)
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = high_location.data.reg } };
+  if(high_location.location_type == ir_instruction_high_location_type_inherited)
+    return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = ++translation_data->current_temp_register } };
   TODO("Tried to unpack a high level location which is not yet unpack-able - Location Type Id: %d", high_location.location_type)
 }
 
