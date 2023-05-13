@@ -21,6 +21,19 @@ static struct ir_instruction_low_location ir_lower_level_unpack_location(struct 
 static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_type_table* type_table, struct ir_level_translation_data* translation_data) {
   if(high_instruction->type == ir_instruction_high_type_add) {
     struct ir_instruction_high_data_oii data = high_instruction->data.oii;
+    struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(false);
+    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
+      {
+        .type = ir_instruction_low_type_add,
+        .data = {
+          .add = {
+            .inputa = ir_lower_level_unpack_location(data.inputa, output_instructions, type_table, translation_data),
+            .inputb = ir_lower_level_unpack_location(data.inputb, output_instructions, type_table, translation_data),
+            .output = ir_lower_level_unpack_location(data.output, temporary_instructions, type_table, translation_data)
+          }
+        }
+      });
+    output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, false);
   }else if(high_instruction->type == ir_instruction_high_type_pop) {
     struct ir_instruction_high_data_i data = high_instruction->data.i;
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
