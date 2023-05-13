@@ -167,6 +167,40 @@ struct ir_type_table* ir_type_create_table(struct ir_type_table* prev) {
   return type_table;
 }
 
+struct ir_type_composed* ir_type_get_composed(uint32_t composed_type_id, struct ir_type_table* type_table) {
+  while(type_table) {
+    if(type_table->start_index >= composed_type_id && type_table->start_index + type_table->entry_count > composed_type_id) {
+      return type_table->types[composed_type_id - type_table->start_index];
+    }
+    type_table = type_table->next;
+  }
+  return NULL;
+}
+
+uint64_t ir_type_bit_size(ir_type_t type, struct ir_type_table* table) {
+  if(type.is_builtin) return type.built_in.size;
+  struct ir_type_composed* composed = ir_type_get_composed(type.composed_type_index, table);
+  if(composed) {
+    if(composed->composed_type == ir_type_composed_type_struct) {
+      uint64_t total_size = 0;
+      for(int i = 0; i<composed->type_count; i++) {
+        total_size += ir_type_bit_size(composed->contained_types[i], table);
+      }
+      return total_size;
+    }else if(composed->composed_type == ir_type_composed_type_union) {
+      uint64_t biggest_size = 0;
+      for(int i = 0; i<composed->type_count; i++) {
+        uint64_t size = ir_type_bit_size(composed->contained_types[i], table);
+        if(size > biggest_size) {
+          biggest_size = size;
+        }
+      }
+      return biggest_size;
+    }
+  }
+  return 0;
+}
+
 struct ir_symbol_table* ir_symbol_create_table(struct ir_symbol_table* prev) {
   int alloc_count = sizeof(prev->elements) / sizeof(struct ir_symbol_table_element);
   int start = prev ? (prev->start_index + alloc_count) : 0;

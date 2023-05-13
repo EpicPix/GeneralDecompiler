@@ -58,4 +58,7 @@ static bool ir_equal_types(ir_type_t a, ir_type_t b) {
   return a.is_builtin == b.is_builtin && a.composed_type_index == b.composed_type_index;
 }
 
+struct ir_type_composed* ir_type_get_composed(uint32_t composed_type_id, struct ir_type_table* type_table);
+uint64_t ir_type_bit_size(ir_type_t type, struct ir_type_table* table);
+
 struct ir_type_table* ir_type_create_table(struct ir_type_table* prev);
