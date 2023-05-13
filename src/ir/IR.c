@@ -49,15 +49,17 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
         .data = {
           .movoin = {
             .output = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data),
-            .input = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-            .input_offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
+            .input = {
+              .loc = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
+              .offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
+            }
           }
         }
       });
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
         .type = ir_instruction_low_type_norelso,
-        .data = {.norel = { .reg = translation_data->stack_data } }
+        .data = { .norel = { .reg = translation_data->stack_data } }
       });
     translation_data->stack_data += (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
   }else if(high_instruction->type == ir_instruction_high_type_push) {
@@ -68,8 +70,10 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
         .type = ir_instruction_low_type_mov_offsetout,
         .data = {
           .movoout = {
-            .output = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-            .output_offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } },
+            .output = {
+              .loc = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
+              .offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
+            },
             .input = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data)
           }
         }
@@ -191,18 +195,18 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.mov.input);
   }else if(instr->type == ir_instruction_low_type_mov_offsetout) {
     printf("movoo (");
-    ir_print_instruction_low_location(&instr->data.movoout.output);
+    ir_print_instruction_low_location(&instr->data.movoout.output.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoout.output_offset);
+    ir_print_instruction_low_location(&instr->data.movoout.output.offset);
     printf("), ");
     ir_print_instruction_low_location(&instr->data.movoout.input);
   }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
     printf("movoi ");
     ir_print_instruction_low_location(&instr->data.movoin.output);
     printf(", (");
-    ir_print_instruction_low_location(&instr->data.movoin.input);
+    ir_print_instruction_low_location(&instr->data.movoin.input.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoin.input_offset);
+    ir_print_instruction_low_location(&instr->data.movoin.input.offset);
     printf(")");
   }else if(instr->type == ir_instruction_low_type_add) {
     printf("add ");
