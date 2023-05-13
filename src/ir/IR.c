@@ -203,7 +203,7 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
   }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
     printf("movoi ");
     ir_print_instruction_low_location(&instr->data.movoin.output);
-    printf(" (");
+    printf(", (");
     ir_print_instruction_low_location(&instr->data.movoin.input);
     printf(" + ");
     ir_print_instruction_low_location(&instr->data.movoin.input_offset);
