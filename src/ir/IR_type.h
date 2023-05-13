@@ -33,8 +33,8 @@ struct ir_type_composed {
 };
 
 struct ir_type_table {
-  int start_index;
-  int entry_count;
+  uint32_t start_index;
+  uint32_t entry_count;
   int allocated_count;
   struct ir_type_table* next;
   struct ir_type_composed* types[];

@@ -8,13 +8,33 @@ struct ir_level_translation_data {
     uint64_t current_temp_register;
 };
 
-static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_level_translation_data* translation_data) {
+static struct ir_instruction_low_location ir_lower_level_unpack_location(struct ir_instruction_high_location high_location, struct ir_instruction_list* output_instructions, struct ir_type_table* type_table, struct ir_level_translation_data* translation_data) {
+  if(high_location.location_type == ir_instruction_high_location_type_immediate)
+    return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = high_location.data.imm } };
+  if(high_location.location_type == ir_instruction_high_location_type_register)
+    return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = high_location.data.reg } };
+  TODO("Tried to unpack a high level location which is not yet unpack-able - Location Type Id: %d", high_location.location_type)
+}
+
+static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_type_table* type_table, struct ir_level_translation_data* translation_data) {
   if(high_instruction->type == ir_instruction_high_type_add) {
-
+    struct ir_instruction_high_data_oii data = high_instruction->data.oii;
   }else if(high_instruction->type == ir_instruction_high_type_pop) {
-
+    struct ir_instruction_high_data_i data = high_instruction->data.i;
   }else if(high_instruction->type == ir_instruction_high_type_push) {
-
+    struct ir_instruction_high_data_i data = high_instruction->data.i;
+    translation_data->stack_data -= ir_type_bit_size(data.input.type, type_table);
+    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
+      {
+        .type = ir_instruction_low_type_mov_offsetout,
+        .data = {
+            .movoout = {
+                .output = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
+                .output_offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } },
+                .input = ir_lower_level_unpack_location(data.input, output_instructions, type_table, translation_data)
+            }
+        }
+      });
   }
   return output_instructions;
 }
@@ -27,10 +47,10 @@ struct ir_data ir_lower_level(struct ir_data data) {
   struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_high = data.instructions;
 
-  struct ir_level_translation_data translation_data = { .stack_data = 0, .current_temp_register = -1 };
+  struct ir_level_translation_data translation_data = { .stack_data = 0, .current_temp_register = ir_instruction_low_special_registers_temp_start };
   while(instructions_high) {
     for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
-      instructions_current = ir_lower_level_unpack_instruction(&instructions_high->instructions.high_level[i], instructions_current, &translation_data);
+      instructions_current = ir_lower_level_unpack_instruction(&instructions_high->instructions.high_level[i], instructions_current, data.type_table, &translation_data);
     }
     instructions_high = instructions_high->next;
   }
