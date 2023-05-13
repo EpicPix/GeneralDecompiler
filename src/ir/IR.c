@@ -215,6 +215,9 @@ void ir_print_decompiled(struct ir_data data) {
 
 }
 
+struct ir_instruction_list* ir_instruction_create_temp_list(bool high_level) {
+  return ir_instruction_create_list(NULL, 0x0, 16, high_level);
+}
 
 struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level) {
   struct ir_instruction_list* list = malloc(sizeof(struct ir_instruction_list));
@@ -227,6 +230,44 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
   list->instruction_count = 0;
   if(prev) prev->next = list;
   list->start_address = start_address;
+  return list;
+}
+
+void ir_instruction_destroy_list(struct ir_instruction_list* instructions, bool high_level) {
+  while(instructions) {
+    if (high_level) {
+      free(instructions->instructions.high_level);
+    } else {
+      free(instructions->instructions.low_level);
+    }
+    struct ir_instruction_list* current = instructions;
+    instructions = instructions->next;
+    free(current);
+  }
+}
+
+struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level) {
+  if(high_level) {
+    while(old_list) {
+      for(uint64_t i = 0; i<old_list->instruction_count; i++) {
+        ir_instruction_add_instruction_high(new_list, 1024, old_list->instructions.high_level[i]);
+      }
+      old_list = old_list->next;
+    }
+  }else {
+    while(old_list) {
+      for(uint64_t i = 0; i<old_list->instruction_count; i++) {
+        ir_instruction_add_instruction_low(new_list, 1024, old_list->instructions.low_level[i]);
+      }
+      old_list = old_list->next;
+    }
+  }
+  return new_list;
+}
+
+struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level) {
+  struct ir_instruction_list* list = ir_instruction_move_list(new_list, old_list, high_level);
+  ir_instruction_destroy_list(old_list);
   return list;
 }
 

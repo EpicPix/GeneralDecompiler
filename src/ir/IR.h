@@ -26,7 +26,11 @@ struct ir_instruction_list {
   struct ir_instruction_list* next;
 };
 
+struct ir_instruction_list* ir_instruction_create_temp_list(bool high_level);
 struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level);
+void ir_instruction_destroy_list(struct ir_instruction_list* instructions, bool high_level);
+struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level);
+struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level);
 
 struct ir_data {
   struct ir_symbol_table* symbol_table;
