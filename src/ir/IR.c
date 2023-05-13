@@ -17,7 +17,7 @@ struct ir_data ir_lower_level(struct ir_data data) {
 
   while(instructions_high) {
     for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
-      instructions_current = ir_lower_level_unpack_instruction(instructions_high->instructions.high_level[i], instructions_current);
+      instructions_current = ir_lower_level_unpack_instruction(&instructions_high->instructions.high_level[i], instructions_current);
     }
     instructions_high = instructions_high->next;
   }
