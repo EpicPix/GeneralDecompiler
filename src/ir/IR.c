@@ -3,7 +3,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions) {
+struct ir_level_translation_data {
+    int64_t stack_data;
+    uint64_t current_temp_register;
+};
+
+static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_level_translation_data* translation_data) {
+  if(high_instruction->type == ir_instruction_high_type_add) {
+
+  }else if(high_instruction->type == ir_instruction_high_type_pop) {
+
+  }else if(high_instruction->type == ir_instruction_high_type_push) {
+
+  }
   return output_instructions;
 }
 
@@ -15,9 +27,10 @@ struct ir_data ir_lower_level(struct ir_data data) {
   struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_high = data.instructions;
 
+  struct ir_level_translation_data translation_data = { .stack_data = 0, .current_temp_register = -1 };
   while(instructions_high) {
     for(uint64_t i = 0; i<instructions_high->instruction_count; i++) {
-      instructions_current = ir_lower_level_unpack_instruction(&instructions_high->instructions.high_level[i], instructions_current);
+      instructions_current = ir_lower_level_unpack_instruction(&instructions_high->instructions.high_level[i], instructions_current, &translation_data);
     }
     instructions_high = instructions_high->next;
   }
