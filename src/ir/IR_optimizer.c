@@ -26,17 +26,22 @@ struct ir_optimize_location_mappings {
     struct ir_optimize_location_mappings* next;
 };
 
-static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_optimize_location_mappings** mappings, struct ir_instruction_low_location_with_offset loc, uint64_t* mapping_count) {
-  if(*mappings == NULL) {
+struct ir_optimize_data {
+    struct ir_optimize_location_mappings* mappings;
+    uint64_t mapping_count;
+};
+
+static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
+  if(data->mappings == NULL) {
     struct ir_optimize_location_mappings* lmap = malloc(sizeof(struct ir_optimize_location_mappings));
-    lmap->mapping = (struct ir_optimize_location_mapping) { .loc = loc, .reg = ir_instruction_low_special_registers_mappings_start - *mapping_count };
+    lmap->mapping = (struct ir_optimize_location_mapping) { .loc = loc, .reg = ir_instruction_low_special_registers_mappings_start - data->mapping_count };
     lmap->next = NULL;
-    *mappings = lmap;
-    (*mapping_count)++;
+    data->mappings = lmap;
+    data->mapping_count++;
     return &lmap->mapping;
   }
-  struct ir_optimize_location_mappings* pre_last = *mappings;
-  struct ir_optimize_location_mappings* maps = *mappings;
+  struct ir_optimize_location_mappings* maps = data->mappings;
+  struct ir_optimize_location_mappings* pre_last = maps;
   while(maps) {
     if(ir_instruction_compare_locations_with_offset_low(loc, maps->mapping.loc)) {
       return &maps->mapping;
@@ -46,23 +51,22 @@ static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(st
   }
 
   struct ir_optimize_location_mappings* lmap = malloc(sizeof(struct ir_optimize_location_mappings));
-  lmap->mapping = (struct ir_optimize_location_mapping) { .loc = loc, .reg = ir_instruction_low_special_registers_mappings_start - *mapping_count };
+  lmap->mapping = (struct ir_optimize_location_mapping) { .loc = loc, .reg = ir_instruction_low_special_registers_mappings_start - data->mapping_count++ };
   lmap->next = NULL;
   pre_last->next = lmap;
-  (*mapping_count)++;
   return &lmap->mapping;
 }
 
-static bool ir_optimize_remove_mapping(struct ir_optimize_location_mappings** mappings, struct ir_instruction_low_location_with_offset loc) {
-  if(!*mappings) return false;
+static bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
+  if(!data->mappings) return false;
   struct ir_optimize_location_mappings* pre_last = NULL;
-  struct ir_optimize_location_mappings* maps = *mappings;
+  struct ir_optimize_location_mappings* maps = data->mappings;
   while(maps) {
     if(ir_instruction_compare_locations_with_offset_low(loc, maps->mapping.loc)) {
       if(pre_last) {
         pre_last->next = maps->next;
       }else {
-        *mappings = maps->next;
+        data->mappings = maps->next;
       }
       free(maps);
       return true;
@@ -73,10 +77,10 @@ static bool ir_optimize_remove_mapping(struct ir_optimize_location_mappings** ma
   return false;
 }
 
-static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_location_mappings** mappings, uint64_t* mapping_count) {
+static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
   struct ir_instruction_low* instr = ir_get_instruction(input_instructions, current_location);
   if(instr->type == ir_instruction_low_type_mov_offsetout) {
-    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(mappings, instr->data.movoout.output, mapping_count);
+    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
     return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
@@ -87,7 +91,7 @@ static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* 
       }
     });
   }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
-    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(mappings, instr->data.movoin.input, mapping_count);
+    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoin.input, data);
     return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
@@ -98,7 +102,7 @@ static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* 
       }
     });
   }else if(instr->type == ir_instruction_low_type_norelso) {
-    bool mapping_removed = ir_optimize_remove_mapping(mappings, instr->data.norel.loc);
+    bool mapping_removed = ir_optimize_remove_mapping(instr->data.norel.loc, data);
     if(mapping_removed) {
       return output;
     }
@@ -113,13 +117,12 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
   struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_in = data.instructions;
-  struct ir_optimize_location_mappings* mappings = NULL;
-  uint64_t mapping_count = 0;
+  struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0 };
 
   while(instructions_in) {
     for(uint64_t i = 0; i<instructions_in->instruction_count; i++) {
       uint64_t ptr = instructions_in->start_address + i;
-      instructions_current = ir_optimize_body(instructions_current, ptr, instructions_in, &mappings, &mapping_count);
+      instructions_current = ir_optimize_body(instructions_current, ptr, instructions_in, &optimizer_data);
     }
     instructions_in = instructions_in->next;
   }
