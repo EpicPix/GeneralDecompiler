@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
+struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
   if(data->mappings == NULL) {
     struct ir_optimize_location_mappings* lmap = malloc(sizeof(struct ir_optimize_location_mappings));
     lmap->mapping = (struct ir_optimize_location_mapping) { .loc = loc, .reg = ir_instruction_low_special_registers_mappings_start - data->mapping_count };
@@ -29,7 +29,7 @@ static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(st
   return &lmap->mapping;
 }
 
-static bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
+bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
   if(!data->mappings) return false;
   struct ir_optimize_location_mappings* pre_last = NULL;
   struct ir_optimize_location_mappings* maps = data->mappings;
@@ -49,7 +49,7 @@ static bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_o
   return false;
 }
 
-static struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_mapping(struct ir_instruction_low_location* reg, struct ir_instruction_low_location* loc, struct ir_optimize_data* data) {
+struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_mapping(struct ir_instruction_low_location* reg, struct ir_instruction_low_location* loc, struct ir_optimize_data* data) {
   if(reg->location_type != ir_instruction_low_location_type_register && reg->location_type != ir_instruction_low_location_type_register_address) return NULL;
 
   if(data->register_usage == NULL) {
@@ -90,7 +90,7 @@ static struct ir_optimize_register_usage_data* ir_optimize_increment_register_us
   return usage;
 }
 
-static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruction_list* output, struct ir_optimize_data* data, struct ir_instruction_low instr) {
+static struct ir_instruction_list* ir_optimize_step1_put_instruction(struct ir_instruction_list* output, struct ir_optimize_data* data, struct ir_instruction_low instr) {
   if(instr.type == ir_instruction_low_type_mov) {
     ir_optimize_increment_register_usage_mapping(&instr.data.mov.input, NULL, data);
     ir_optimize_increment_register_usage_mapping(&instr.data.mov.output, &instr.data.mov.input, data);
@@ -103,11 +103,11 @@ static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruc
   return ir_instruction_add_instruction_low(output, 1024, instr);
 }
 
-static struct ir_instruction_list* ir_optimize_body_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
+static struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
   struct ir_instruction_low* instr = ir_get_instruction_low(input_instructions, current_location);
   if(instr->type == ir_instruction_low_type_mov_offsetout) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
-    return ir_optimize_put_instruction(output, data, (struct ir_instruction_low) {
+    return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .mov = {
@@ -118,7 +118,7 @@ static struct ir_instruction_list* ir_optimize_body_step1(struct ir_instruction_
     });
   }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoin.input, data);
-    return ir_optimize_put_instruction(output, data, (struct ir_instruction_low) {
+    return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .movoin = {
@@ -133,7 +133,7 @@ static struct ir_instruction_list* ir_optimize_body_step1(struct ir_instruction_
       return output;
     }
   }
-  return ir_optimize_put_instruction(output, data, *instr);
+  return ir_optimize_step1_put_instruction(output, data, *instr);
 }
 
 
@@ -157,7 +157,7 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL };
 
-  struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_body_step1, data.instructions, &optimizer_data);
+  struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_step1, data.instructions, &optimizer_data);
 
   return (struct ir_data) {
           .is_high_level = false,
