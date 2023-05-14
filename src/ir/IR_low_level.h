@@ -61,7 +61,7 @@ struct ir_instruction_low {
             struct ir_instruction_low_location output;
         } add;
         struct ir_instruction_low_data_norelso {
-            uint64_t reg;
+            struct ir_instruction_low_location_with_offset loc;
         } norel;
     } data;
 };
