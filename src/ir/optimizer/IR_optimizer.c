@@ -112,10 +112,11 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL };
 
   struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_step1, data.instructions, &optimizer_data);
+  struct ir_instruction_list* instructions_step2 = ir_optimize_run_step(ir_optimize_step2, instructions_step1, &optimizer_data);
 
   return (struct ir_data) {
           .is_high_level = false,
-          .instructions = instructions_step1,
+          .instructions = instructions_step2,
           .memory_page_start = data.memory_page_start,
           .symbol_table = symbol_table,
           .type_table = data.type_table
