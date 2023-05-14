@@ -311,6 +311,21 @@ struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instr
   return list;
 }
 
+bool ir_instruction_compare_locations_low(struct ir_instruction_low_location location_a, struct ir_instruction_low_location location_b) {
+  if(location_a.location_type != location_b.location_type) return false;
+  if(!ir_equal_types(location_a.type, location_b.type)) return false;
+
+  if(location_a.location_type == ir_instruction_low_location_type_register) return location_a.data.reg == location_b.data.reg;
+  if(location_a.location_type == ir_instruction_low_location_type_register_address) return location_a.data.reg == location_b.data.reg;
+  if(location_a.location_type == ir_instruction_low_location_type_immediate) return location_a.data.imm == location_b.data.imm;
+  if(location_a.location_type == ir_instruction_low_location_type_address) return location_a.data.addr == location_b.data.addr;
+  return false;
+}
+
+bool ir_instruction_compare_locations_with_offset_low(struct ir_instruction_low_location_with_offset location_a, struct ir_instruction_low_location_with_offset location_b) {
+  return ir_instruction_compare_locations_low(location_a.loc, location_b.loc) && ir_instruction_compare_locations_low(location_a.offset, location_b.offset);
+}
+
 struct ir_instruction_list* ir_instruction_add_instruction_low(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_low instr) {
   if(list->instruction_count >= list->allocated_count) {
     list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, false);
