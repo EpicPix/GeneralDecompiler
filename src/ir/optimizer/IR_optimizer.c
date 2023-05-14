@@ -3,19 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static struct ir_instruction_low* ir_get_instruction(struct ir_instruction_list* instructions, uint64_t instruction) {
-  while(instructions) {
-    if(instructions->start_address <= instruction && instructions->start_address + instructions->allocated_count > instruction) {
-      if(instructions->start_address + instructions->instruction_count <= instruction) {
-        return NULL;
-      }
-      return &instructions->instructions.low_level[instruction - instructions->start_address];
-    }
-    instructions = instructions->next;
-  }
-  return NULL;
-}
-
 static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
   if(data->mappings == NULL) {
     struct ir_optimize_location_mappings* lmap = malloc(sizeof(struct ir_optimize_location_mappings));
@@ -117,7 +104,7 @@ static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruc
 }
 
 static struct ir_instruction_list* ir_optimize_body_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
-  struct ir_instruction_low* instr = ir_get_instruction(input_instructions, current_location);
+  struct ir_instruction_low* instr = ir_get_instruction_low(input_instructions, current_location);
   if(instr->type == ir_instruction_low_type_mov_offsetout) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
     return ir_optimize_put_instruction(output, data, (struct ir_instruction_low) {

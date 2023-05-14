@@ -335,6 +335,19 @@ struct ir_instruction_list* ir_instruction_add_instruction_low(struct ir_instruc
   return list;
 }
 
+struct ir_instruction_low* ir_get_instruction_low(struct ir_instruction_list* instructions, uint64_t instruction) {
+  while(instructions) {
+    if(instructions->start_address <= instruction && instructions->start_address + instructions->allocated_count > instruction) {
+      if(instructions->start_address + instructions->instruction_count <= instruction) {
+        return NULL;
+      }
+      return &instructions->instructions.low_level[instruction - instructions->start_address];
+    }
+    instructions = instructions->next;
+  }
+  return NULL;
+}
+
 struct ir_instruction_list* ir_instruction_add_instruction_high(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_high instr) {
   if(list->instruction_count >= list->allocated_count) {
     list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, true);

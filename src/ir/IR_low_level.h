@@ -71,3 +71,4 @@ bool ir_instruction_compare_locations_low(struct ir_instruction_low_location loc
 bool ir_instruction_compare_locations_with_offset_low(struct ir_instruction_low_location_with_offset location_a, struct ir_instruction_low_location_with_offset location_b);
 
 struct ir_instruction_list* ir_instruction_add_instruction_low(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_low instr);
+struct ir_instruction_low* ir_get_instruction_low(struct ir_instruction_list* instructions, uint64_t instruction);
