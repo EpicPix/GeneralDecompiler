@@ -26,9 +26,16 @@ struct ir_optimize_location_mappings {
     struct ir_optimize_location_mappings* next;
 };
 
+struct ir_optimize_register_usage_data {
+    uint64_t reg;
+    uint64_t count;
+    struct ir_optimize_register_usage* next;
+};
+
 struct ir_optimize_data {
     struct ir_optimize_location_mappings* mappings;
     uint64_t mapping_count;
+    struct ir_optimize_register_usage_data* register_usage;
 };
 
 static struct ir_optimize_location_mapping* ir_optimize_get_or_create_mapping(struct ir_instruction_low_location_with_offset loc, struct ir_optimize_data* data) {
@@ -77,11 +84,15 @@ static bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_o
   return false;
 }
 
+static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruction_list* output, struct ir_optimize_data* data, struct ir_instruction_low instr) {
+  return ir_instruction_add_instruction_low(output, 1024, instr);
+}
+
 static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
   struct ir_instruction_low* instr = ir_get_instruction(input_instructions, current_location);
   if(instr->type == ir_instruction_low_type_mov_offsetout) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
-    return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
+    return ir_optimize_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .mov = {
@@ -92,7 +103,7 @@ static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* 
     });
   }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoin.input, data);
-    return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
+    return ir_optimize_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .movoin = {
@@ -107,7 +118,7 @@ static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* 
       return output;
     }
   }
-  return ir_instruction_add_instruction_low(output, 1024, *instr);
+  return ir_optimize_put_instruction(output, data, *instr);
 }
 
 struct ir_data ir_optimize(struct ir_data data) {
@@ -117,7 +128,7 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
   struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_in = data.instructions;
-  struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0 };
+  struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL };
 
   while(instructions_in) {
     for(uint64_t i = 0; i<instructions_in->instruction_count; i++) {
