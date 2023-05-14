@@ -140,7 +140,9 @@ static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruc
   return ir_instruction_add_instruction_low(output, 1024, instr);
 }
 
-static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
+typedef struct ir_instruction_list* (*ir_optimize_step_func_t)(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data);
+
+static struct ir_instruction_list* ir_optimize_body_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
   struct ir_instruction_low* instr = ir_get_instruction(input_instructions, current_location);
   if(instr->type == ir_instruction_low_type_mov_offsetout) {
     struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
@@ -173,26 +175,32 @@ static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* 
   return ir_optimize_put_instruction(output, data, *instr);
 }
 
+
+
+static struct ir_instruction_list* ir_optimize_run_step(ir_optimize_step_func_t step_func, struct ir_instruction_list* input_instructions, struct ir_optimize_data* optimizer_data) {
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
+  struct ir_instruction_list* instructions_current = instructions_start;
+  while(input_instructions) {
+    for(uint64_t i = 0; i<input_instructions->instruction_count; i++) {
+      uint64_t ptr = input_instructions->start_address + i;
+      instructions_current = step_func(instructions_current, ptr, input_instructions, optimizer_data);
+    }
+    input_instructions = input_instructions->next;
+  }
+  return instructions_start;
+}
+
 struct ir_data ir_optimize(struct ir_data data) {
   if(data.is_high_level) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
-  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
-  struct ir_instruction_list* instructions_current = instructions_start;
-  struct ir_instruction_list* instructions_in = data.instructions;
   struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL };
 
-  while(instructions_in) {
-    for(uint64_t i = 0; i<instructions_in->instruction_count; i++) {
-      uint64_t ptr = instructions_in->start_address + i;
-      instructions_current = ir_optimize_body(instructions_current, ptr, instructions_in, &optimizer_data);
-    }
-    instructions_in = instructions_in->next;
-  }
+  struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_body_step1, data.instructions, &optimizer_data);
 
   return (struct ir_data) {
           .is_high_level = false,
-          .instructions = instructions_start,
+          .instructions = instructions_step1,
           .memory_page_start = data.memory_page_start,
           .symbol_table = symbol_table,
           .type_table = data.type_table
