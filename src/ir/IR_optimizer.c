@@ -27,6 +27,7 @@ struct ir_optimize_location_mappings {
 };
 
 struct ir_optimize_register_usage_data {
+    struct ir_instruction_low_location* assigned_data;
     uint64_t reg;
     uint64_t count;
     struct ir_optimize_register_usage_data* next;
@@ -84,11 +85,12 @@ static bool ir_optimize_remove_mapping(struct ir_instruction_low_location_with_o
   return false;
 }
 
-static struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_mapping(uint64_t reg, struct ir_optimize_data* data) {
+static struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_mapping(uint64_t reg, struct ir_instruction_low_location* loc, struct ir_optimize_data* data) {
   if(data->register_usage == NULL) {
     struct ir_optimize_register_usage_data* usage = malloc(sizeof(struct ir_optimize_register_usage_data));
     usage->reg = reg;
     usage->count = 1;
+    usage->assigned_data = loc;
     usage->next = NULL;
     data->register_usage = usage;
     return usage;
@@ -97,6 +99,9 @@ static struct ir_optimize_register_usage_data* ir_optimize_increment_register_us
   struct ir_optimize_register_usage_data* pre_last = usage;
   while(usage) {
     if(reg == usage->reg) {
+      if(usage->assigned_data == NULL) {
+        usage->assigned_data = loc;
+      }
       usage->count++;
       return usage;
     }
@@ -106,6 +111,7 @@ static struct ir_optimize_register_usage_data* ir_optimize_increment_register_us
 
   usage = malloc(sizeof(struct ir_optimize_register_usage_data));
   usage->reg = reg;
+  usage->assigned_data = loc;
   usage->count = 1;
   usage->next = NULL;
   pre_last->next = usage;
@@ -115,17 +121,17 @@ static struct ir_optimize_register_usage_data* ir_optimize_increment_register_us
 static struct ir_instruction_list* ir_optimize_put_instruction(struct ir_instruction_list* output, struct ir_optimize_data* data, struct ir_instruction_low instr) {
   if(instr.type == ir_instruction_low_type_mov) {
     if(instr.data.mov.input.location_type == ir_instruction_low_location_type_register || instr.data.mov.input.location_type == ir_instruction_low_location_type_register_address)
-      ir_optimize_increment_register_usage_mapping(instr.data.mov.input.data.reg, data);
+      ir_optimize_increment_register_usage_mapping(instr.data.mov.input.data.reg, NULL, data);
     if(instr.data.mov.output.location_type == ir_instruction_low_location_type_register || instr.data.mov.output.location_type == ir_instruction_low_location_type_register_address)
-      ir_optimize_increment_register_usage_mapping(instr.data.mov.output.data.reg, data);
+      ir_optimize_increment_register_usage_mapping(instr.data.mov.output.data.reg, &instr.data.mov.input, data);
   }
   if(instr.type == ir_instruction_low_type_add) {
     if(instr.data.add.inputa.location_type == ir_instruction_low_location_type_register || instr.data.add.inputa.location_type == ir_instruction_low_location_type_register_address)
-      ir_optimize_increment_register_usage_mapping(instr.data.add.inputa.data.reg, data);
+      ir_optimize_increment_register_usage_mapping(instr.data.add.inputa.data.reg, NULL, data);
     if(instr.data.add.inputb.location_type == ir_instruction_low_location_type_register || instr.data.add.inputb.location_type == ir_instruction_low_location_type_register_address)
-      ir_optimize_increment_register_usage_mapping(instr.data.add.inputb.data.reg, data);
+      ir_optimize_increment_register_usage_mapping(instr.data.add.inputb.data.reg, NULL, data);
     if(instr.data.add.output.location_type == ir_instruction_low_location_type_register || instr.data.add.output.location_type == ir_instruction_low_location_type_register_address)
-      ir_optimize_increment_register_usage_mapping(instr.data.add.output.data.reg, data);
+      ir_optimize_increment_register_usage_mapping(instr.data.add.output.data.reg, NULL, data);
   }
   return ir_instruction_add_instruction_low(output, 1024, instr);
 }
