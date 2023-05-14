@@ -26,7 +26,7 @@ struct ir_optimize_location_mappings {
     struct ir_optimize_location_mappings* next;
 };
 
-static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_location_mappings) {
+static struct ir_instruction_list* ir_optimize_body(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_location_mappings* mappings) {
   struct ir_instruction_low* current_instruction = ir_get_instruction(input_instructions, current_location);
   return ir_instruction_add_instruction_low(output, 1024, *current_instruction);
 }
