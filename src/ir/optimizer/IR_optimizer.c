@@ -109,9 +109,10 @@ struct ir_data ir_optimize(struct ir_data data) {
   if(data.is_high_level) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
-  struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL };
+  struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL, .register_tree = NULL };
 
   struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_step1, data.instructions, &optimizer_data);
+  ir_optimize_prepare_step2(&optimizer_data);
   struct ir_instruction_list* instructions_step2 = ir_optimize_run_step(ir_optimize_step2, instructions_step1, &optimizer_data);
 
   return (struct ir_data) {
