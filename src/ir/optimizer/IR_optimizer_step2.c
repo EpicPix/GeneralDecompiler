@@ -56,7 +56,7 @@ static void ir_optimize_add_node(struct ir_optimize_data* data, struct ir_instru
 void ir_optimize_prepare_step2(struct ir_optimize_data* data) {
   struct ir_optimize_register_usage_data* register_usage = data->register_usage;
   while(register_usage) {
-    if(register_usage->count == 2 && register_usage->has_assigned_data) {
+    if(register_usage->count == 2 && register_usage->has_assigned_data && register_usage->reg.location_type == ir_instruction_low_location_type_register && register_usage->reg.data.reg >> 63) {
       ir_optimize_add_node(data, register_usage->assigned_data, &register_usage->reg);
     }
     register_usage = register_usage->next;
