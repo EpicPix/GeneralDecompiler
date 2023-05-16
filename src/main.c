@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
   ir_print_instructions(ir_data);
 #endif
   DEBUG_LOG("main", "Optimized IR. Symbol table at %p, printing decompiled code...", ir_data.symbol_table);
-  ir_print_decompiled(ir_data);
+  ir_decompiled_print(ir_data);
 
   free(data);
   close(fd);
