@@ -251,10 +251,6 @@ void ir_print_instructions(struct ir_data data) {
   }
 }
 
-void ir_print_decompiled(struct ir_data data) {
-
-}
-
 struct ir_instruction_list* ir_instruction_create_temp_list(bool high_level) {
   return ir_instruction_create_list(NULL, 0x0, 16, high_level);
 }
