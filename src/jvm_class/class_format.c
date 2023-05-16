@@ -424,6 +424,9 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
       }else if(opcode == 0x1b) { // iload_1
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 1 } } } } });
         continue;
+      }else if(opcode == 0x1c) { // iload_2
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 2 } } } } });
+        continue;
       }else if(opcode == 0x3b) { // istore_0
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 0 } } } } });
         continue;
@@ -432,6 +435,9 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
         continue;
       }else if(opcode == 0x3d) { // istore_2
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 2 } } } } });
+        continue;
+      }else if(opcode == 0x3e) { // istore_3
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 3 } } } } });
         continue;
       }else if(opcode == 0x60) { // iadd
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_add, .data = {
