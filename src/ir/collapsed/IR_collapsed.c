@@ -3,10 +3,56 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+static struct ir_instruction_collapsed_location ir_collapse_convert_location(struct ir_instruction_low_location location) {
+  if(location.location_type == ir_instruction_low_location_type_immediate) return (struct ir_instruction_collapsed_location) { .type = location.type, .location_type = ir_instruction_collapsed_location_type_immediate, .data = { .imm = location.data.imm } };
+  if(location.location_type == ir_instruction_low_location_type_register) return (struct ir_instruction_collapsed_location) { .type = location.type, .location_type = ir_instruction_collapsed_location_type_register, .data = { .reg = location.data.reg } };
+  if(location.location_type == ir_instruction_low_location_type_register_address) return (struct ir_instruction_collapsed_location) { .type = location.type, .location_type = ir_instruction_collapsed_location_type_register_address, .data = { .reg = location.data.reg } };
+
+  return (struct ir_instruction_collapsed_location) { .type = location.type, .location_type = ir_instruction_collapsed_location_type_address, .data = { .addr = location.data.addr } };
+}
+
+static struct ir_instruction_list* ir_collapse_convert_low(struct ir_instruction_low* instr, struct ir_instruction_list* list) {
+  if(instr->type == ir_instruction_low_type_mov) {
+    return ir_instruction_add_instruction_collapsed(list, 1024, (struct ir_instruction_collapsed) {
+      .type = ir_instruction_collapsed_type_mov,
+      .data = {
+        .mov = {
+          .input = ir_collapse_convert_location(instr->data.mov.input),
+          .output = ir_collapse_convert_location(instr->data.mov.output)
+        }
+      }
+    });
+  }else if(instr->type == ir_instruction_low_type_add) {
+    return ir_instruction_add_instruction_collapsed(list, 1024, (struct ir_instruction_collapsed) {
+      .type = ir_instruction_collapsed_type_add,
+      .data = {
+        .add = {
+          .inputa = ir_collapse_convert_location(instr->data.add.inputa),
+          .inputb = ir_collapse_convert_location(instr->data.add.inputb),
+          .output = ir_collapse_convert_location(instr->data.add.output)
+        }
+      }
+    });
+  }
+  return list;
+}
+
 struct ir_data ir_collapse(struct ir_data data) {
+  if(data.instruction_level != ir_instruction_level_low) return data;
+
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
+
+  struct ir_instruction_list* input_instructions = data.instructions;
   struct ir_instruction_list* instructions_out = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_collapsed);
-  
+  struct ir_instruction_list* instructions_current = instructions_out;
+  while(input_instructions) {
+    for(uint64_t i = 0; i<input_instructions->instruction_count; i++) {
+      struct ir_instruction_low* instr = &input_instructions->instructions.low_level[i];
+      instructions_current = ir_collapse_convert_low(instr, instructions_current);
+    }
+    input_instructions = input_instructions->next;
+  }
+
   return (struct ir_data) {
     .instruction_level = ir_instruction_level_collapsed,
     .instructions = instructions_out,

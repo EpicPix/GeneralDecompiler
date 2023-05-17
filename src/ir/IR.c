@@ -263,6 +263,8 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
     list->instructions.high_level = malloc(instruction_count * sizeof(struct ir_instruction_high));
   }else if(level == ir_instruction_level_low) {
     list->instructions.low_level = malloc(instruction_count * sizeof(struct ir_instruction_low));
+  }else if(level == ir_instruction_level_collapsed) {
+    list->instructions.collapsed_level = malloc(instruction_count * sizeof(struct ir_instruction_collapsed));
   }
   list->allocated_count = instruction_count;
   list->instruction_count = 0;
@@ -277,6 +279,8 @@ void ir_instruction_destroy_list(struct ir_instruction_list* instructions, enum 
       free(instructions->instructions.high_level);
     }else if(level == ir_instruction_level_low) {
       free(instructions->instructions.low_level);
+    }else if(level == ir_instruction_level_collapsed) {
+      free(instructions->instructions.collapsed_level);
     }
     struct ir_instruction_list* current = instructions;
     instructions = instructions->next;
@@ -296,6 +300,13 @@ struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list*
     while(old_list) {
       for(uint64_t i = 0; i<old_list->instruction_count; i++) {
         ir_instruction_add_instruction_low(new_list, 1024, old_list->instructions.low_level[i]);
+      }
+      old_list = old_list->next;
+    }
+  }else if(level == ir_instruction_level_collapsed) {
+    while(old_list) {
+      for(uint64_t i = 0; i<old_list->instruction_count; i++) {
+        ir_instruction_add_instruction_collapsed(new_list, 1024, old_list->instructions.collapsed_level[i]);
       }
       old_list = old_list->next;
     }
