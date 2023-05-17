@@ -5,6 +5,7 @@
 
 #include "IR_high_level.h"
 #include "IR_low_level.h"
+#include "IR_collapsed_level.h"
 #include "IR_type.h"
 #include "IR_symbol.h"
 
