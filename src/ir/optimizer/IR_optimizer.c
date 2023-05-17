@@ -111,11 +111,18 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL, .register_tree = NULL };
 
+  double start = get_app_time();
+  DEBUG_LOG("ir_optimizer", "%s", "Running optimization step 1");
   struct ir_instruction_list* instructions_step1 = ir_optimize_run_step(ir_optimize_step1, data.instructions, &optimizer_data);
+  DEBUG_LOG("ir_optimizer", "%s", "Preparing optimization step 2");
   ir_optimize_prepare_step2(&optimizer_data);
+  DEBUG_LOG("ir_optimizer", "%s", "Running optimization step 2");
   struct ir_instruction_list* instructions_step2 = ir_optimize_run_step(ir_optimize_step2, instructions_step1, &optimizer_data);
+  DEBUG_LOG("ir_optimizer", "%s", "Preparing optimization step 3");
   ir_optimize_prepare_step3(&optimizer_data);
+  DEBUG_LOG("ir_optimizer", "%s", "Running optimization step 3");
   struct ir_instruction_list* instructions_step3 = ir_optimize_run_step(ir_optimize_step3, instructions_step2, &optimizer_data);
+  DEBUG_LOG("ir_optimizer", "Optimizations finished, took %.6lf seconds for all optimizations", get_app_time() - start);
 
   return (struct ir_data) {
           .is_high_level = false,

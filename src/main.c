@@ -11,6 +11,7 @@
 #include "utils.h"
 
 int main(int argc, char** argv) {
+  init_app_time();
   if(argc < 3) {
     fprintf(stderr, "Usage: %s <format> <file>\n", argv[0]);
     return 1;
