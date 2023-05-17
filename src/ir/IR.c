@@ -234,6 +234,51 @@ static void ir_print_instruction_low(uint64_t addr, struct ir_instruction_low* i
   printf("\n");
 }
 
+
+
+static void ir_print_instruction_collapsed_inl(struct ir_instruction_collapsed* instr);
+static void ir_print_instruction_collapsed_location(struct ir_instruction_collapsed_location* location) {
+  ir_print_instruction_print_type(location->type);
+  printf(" ");
+  if(location->location_type == ir_instruction_collapsed_location_type_immediate) {
+    printf("%ld", location->data.imm);
+  }else if(location->location_type == ir_instruction_collapsed_location_type_address) {
+    printf("*0x%016lx", location->data.addr);
+  }else if(location->location_type == ir_instruction_collapsed_location_type_register) {
+    printf("@%ld", location->data.reg);
+  }else if(location->location_type == ir_instruction_collapsed_location_type_inlined) {
+    printf("<");
+    ir_print_instruction_collapsed_inl(location->data.instr);
+    printf(">");
+  }else if(location->location_type == ir_instruction_collapsed_location_type_inherit) {
+    printf("@^");
+  }else {
+    printf("?");
+  }
+}
+
+static void ir_print_instruction_collapsed_inl(struct ir_instruction_collapsed* instr) {
+  if(instr->type == ir_instruction_collapsed_type_mov) {
+    printf("mov ");
+    ir_print_instruction_collapsed_location(&instr->data.mov.output);
+    printf(", ");
+    ir_print_instruction_collapsed_location(&instr->data.mov.input);
+  }else if(instr->type == ir_instruction_collapsed_type_add) {
+    printf("add ");
+    ir_print_instruction_collapsed_location(&instr->data.add.output);
+    printf(", ");
+    ir_print_instruction_collapsed_location(&instr->data.add.inputa);
+    printf(", ");
+    ir_print_instruction_collapsed_location(&instr->data.add.inputb);
+  }
+}
+
+static void ir_print_instruction_collapsed(uint64_t addr, struct ir_instruction_collapsed* instr) {
+  printf("0x%016lx: ", addr);
+  ir_print_instruction_collapsed_inl(instr);
+  printf("\n");
+}
+
 void ir_print_instructions(struct ir_data data) {
   struct ir_instruction_list* list = data.instructions;
   if(data.instruction_level == ir_instruction_level_high) {
@@ -247,6 +292,13 @@ void ir_print_instructions(struct ir_data data) {
     while(list != NULL) {
       for(uint64_t i = 0; i<list->instruction_count; i++) {
         ir_print_instruction_low(list->start_address + i, &list->instructions.low_level[i]);
+      }
+      list = list->next;
+    }
+  }else if(data.instruction_level == ir_instruction_level_collapsed) {
+    while(list != NULL) {
+      for(uint64_t i = 0; i<list->instruction_count; i++) {
+        ir_print_instruction_collapsed(list->start_address + i, &list->instructions.collapsed_level[i]);
       }
       list = list->next;
     }
