@@ -93,7 +93,7 @@ struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_map
 
 
 static struct ir_instruction_list* ir_optimize_run_step(ir_optimize_step_func_t step_func, struct ir_instruction_list* input_instructions, struct ir_optimize_data* optimizer_data) {
-  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_low);
   struct ir_instruction_list* instructions_current = instructions_start;
   while(input_instructions) {
     for(uint64_t i = 0; i<input_instructions->instruction_count; i++) {

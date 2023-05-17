@@ -28,7 +28,7 @@ static struct ir_instruction_low_location ir_lower_level_unpack_location(struct 
 static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_type_table* type_table, struct ir_level_translation_data* translation_data) {
   if(high_instruction->type == ir_instruction_high_type_add) {
     struct ir_instruction_high_data_oii data = high_instruction->data.oii;
-    struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(false);
+    struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(ir_instruction_level_low);
     struct ir_instruction_low_location inputb = ir_lower_level_unpack_location(data.inputb, &output_instructions, type_table, translation_data);
     struct ir_instruction_low_location inputa = ir_lower_level_unpack_location(data.inputa, &output_instructions, type_table, translation_data);
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
@@ -42,7 +42,7 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
           }
         }
       });
-    output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, false);
+    output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
   }else if(high_instruction->type == ir_instruction_high_type_pop) {
     struct ir_instruction_high_data_i data = high_instruction->data.i;
     struct ir_instruction_low_location_with_offset lo =
@@ -90,7 +90,7 @@ struct ir_data ir_lower_level(struct ir_data data) {
   if(data.instruction_level != ir_instruction_level_high) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
-  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_low);
   struct ir_instruction_list* instructions_current = instructions_start;
   struct ir_instruction_list* instructions_high = data.instructions;
 
@@ -326,7 +326,7 @@ bool ir_instruction_compare_locations_with_offset_low(struct ir_instruction_low_
 
 struct ir_instruction_list* ir_instruction_add_instruction_low(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_low instr) {
   if(list->instruction_count >= list->allocated_count) {
-    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, false);
+    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, ir_instruction_level_low);
   }
   list->instructions.low_level[list->instruction_count] = instr;
   list->instruction_count++;
@@ -348,7 +348,7 @@ struct ir_instruction_low* ir_get_instruction_low(struct ir_instruction_list* in
 
 struct ir_instruction_list* ir_instruction_add_instruction_high(struct ir_instruction_list* list, uint64_t instruction_count, struct ir_instruction_high instr) {
   if(list->instruction_count >= list->allocated_count) {
-    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, true);
+    list = ir_instruction_create_list(list, list->start_address + list->allocated_count, instruction_count, ir_instruction_level_high);
   }
   list->instructions.high_level[list->instruction_count] = instr;
   list->instruction_count++;

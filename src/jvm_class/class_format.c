@@ -387,7 +387,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_type_table* type_table = ir_type_create_table(NULL);
 
-  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, true);
+  struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_high);
   struct ir_instruction_list* instructions = instructions_start;
 
   for(int i = 0; i<cf->method_count; i++) {

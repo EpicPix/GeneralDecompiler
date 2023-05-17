@@ -29,6 +29,7 @@ struct ir_instruction_list {
   union {
     struct ir_instruction_low* low_level;
     struct ir_instruction_high* high_level;
+    struct ir_instruction_collapsed* collapsed_level;
   } instructions;
   struct ir_instruction_list* next;
 };
