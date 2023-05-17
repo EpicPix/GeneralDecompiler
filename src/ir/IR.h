@@ -9,6 +9,12 @@
 #include "IR_type.h"
 #include "IR_symbol.h"
 
+enum ir_instruction_level {
+    ir_instruction_level_high,
+    ir_instruction_level_low,
+    ir_instruction_level_collapsed,
+};
+
 struct ir_memory_page {
   uint64_t start_address;
   uint64_t length;
@@ -27,18 +33,18 @@ struct ir_instruction_list {
   struct ir_instruction_list* next;
 };
 
-struct ir_instruction_list* ir_instruction_create_temp_list(bool high_level);
-struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level);
-void ir_instruction_destroy_list(struct ir_instruction_list* instructions, bool high_level);
-struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level);
-struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level);
+struct ir_instruction_list* ir_instruction_create_temp_list(enum ir_instruction_level level);
+struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, enum ir_instruction_level level);
+void ir_instruction_destroy_list(struct ir_instruction_list* instructions, enum ir_instruction_level level);
+struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, enum ir_instruction_level level);
+struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, enum ir_instruction_level level);
 
 struct ir_data {
   struct ir_symbol_table* symbol_table;
   struct ir_type_table* type_table;
   struct ir_memory_page* memory_page_start;
   struct ir_instruction_list* instructions;
-  bool is_high_level;
+  enum ir_instruction_level instruction_level;
 };
 
 struct ir_data ir_lower_level(struct ir_data data);

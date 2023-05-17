@@ -481,7 +481,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
     }
   }
 
-  return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = instructions_start, .is_high_level = true };
+  return (struct ir_data){ .symbol_table = symbol_table, .type_table = type_table, .memory_page_start = NULL, .instructions = instructions_start, .instruction_level = ir_instruction_level_high };
 }
 
 const arch_info arch_jvm = (const arch_info){

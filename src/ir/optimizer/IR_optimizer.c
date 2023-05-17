@@ -106,7 +106,7 @@ static struct ir_instruction_list* ir_optimize_run_step(ir_optimize_step_func_t 
 }
 
 struct ir_data ir_optimize(struct ir_data data) {
-  if(data.is_high_level) return data;
+  if(data.instruction_level != ir_instruction_level_low) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_optimize_data optimizer_data = { .mappings = NULL, .mapping_count = 0, .register_usage = NULL, .register_tree = NULL };
@@ -125,7 +125,7 @@ struct ir_data ir_optimize(struct ir_data data) {
   DEBUG_LOG("ir_optimizer", "Optimizations finished, took %.6lf seconds for all optimizations", get_app_time() - start);
 
   return (struct ir_data) {
-          .is_high_level = false,
+          .instruction_level = ir_instruction_level_low,
           .instructions = instructions_step3,
           .memory_page_start = data.memory_page_start,
           .symbol_table = symbol_table,

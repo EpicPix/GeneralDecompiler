@@ -87,7 +87,7 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
 }
 
 struct ir_data ir_lower_level(struct ir_data data) {
-  if(!data.is_high_level) return data;
+  if(data.instruction_level != ir_instruction_level_high) return data;
 
   struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
   struct ir_instruction_list* instructions_start = ir_instruction_create_list(NULL, 0x10000, 1024, false);
@@ -103,7 +103,7 @@ struct ir_data ir_lower_level(struct ir_data data) {
   }
 
   return (struct ir_data) {
-    .is_high_level = false,
+    .instruction_level = ir_instruction_level_low,
     .instructions = instructions_start,
     .memory_page_start = data.memory_page_start,
     .symbol_table = symbol_table,
@@ -236,14 +236,14 @@ static void ir_print_instruction_low(uint64_t addr, struct ir_instruction_low* i
 
 void ir_print_instructions(struct ir_data data) {
   struct ir_instruction_list* list = data.instructions;
-  if(data.is_high_level) {
+  if(data.instruction_level == ir_instruction_level_high) {
     while(list != NULL) {
       for(uint64_t i = 0; i<list->instruction_count; i++) {
         ir_print_instruction_high(list->start_address + i, &list->instructions.high_level[i]);
       }
       list = list->next;
     }
-  }else {
+  }else if(data.instruction_level == ir_instruction_level_low) {
     while(list != NULL) {
       for(uint64_t i = 0; i<list->instruction_count; i++) {
         ir_print_instruction_low(list->start_address + i, &list->instructions.low_level[i]);
@@ -253,15 +253,15 @@ void ir_print_instructions(struct ir_data data) {
   }
 }
 
-struct ir_instruction_list* ir_instruction_create_temp_list(bool high_level) {
-  return ir_instruction_create_list(NULL, 0x0, 16, high_level);
+struct ir_instruction_list* ir_instruction_create_temp_list(enum ir_instruction_level level) {
+  return ir_instruction_create_list(NULL, 0x0, 16, level);
 }
 
-struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, bool high_level) {
+struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_list* prev, uint64_t start_address, uint64_t instruction_count, enum ir_instruction_level level) {
   struct ir_instruction_list* list = malloc(sizeof(struct ir_instruction_list));
-  if(high_level) {
+  if(level == ir_instruction_level_high) {
     list->instructions.high_level = malloc(instruction_count * sizeof(struct ir_instruction_high));
-  }else {
+  }else if(level == ir_instruction_level_low) {
     list->instructions.low_level = malloc(instruction_count * sizeof(struct ir_instruction_low));
   }
   list->allocated_count = instruction_count;
@@ -271,11 +271,11 @@ struct ir_instruction_list* ir_instruction_create_list(struct ir_instruction_lis
   return list;
 }
 
-void ir_instruction_destroy_list(struct ir_instruction_list* instructions, bool high_level) {
+void ir_instruction_destroy_list(struct ir_instruction_list* instructions, enum ir_instruction_level level) {
   while(instructions) {
-    if (high_level) {
+    if(level == ir_instruction_level_high) {
       free(instructions->instructions.high_level);
-    } else {
+    }else if(level == ir_instruction_level_low) {
       free(instructions->instructions.low_level);
     }
     struct ir_instruction_list* current = instructions;
@@ -284,15 +284,15 @@ void ir_instruction_destroy_list(struct ir_instruction_list* instructions, bool 
   }
 }
 
-struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level) {
-  if(high_level) {
+struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, enum ir_instruction_level level) {
+  if(level == ir_instruction_level_high) {
     while(old_list) {
       for(uint64_t i = 0; i<old_list->instruction_count; i++) {
         ir_instruction_add_instruction_high(new_list, 1024, old_list->instructions.high_level[i]);
       }
       old_list = old_list->next;
     }
-  }else {
+  }else if(level == ir_instruction_level_low) {
     while(old_list) {
       for(uint64_t i = 0; i<old_list->instruction_count; i++) {
         ir_instruction_add_instruction_low(new_list, 1024, old_list->instructions.low_level[i]);
@@ -303,9 +303,9 @@ struct ir_instruction_list* ir_instruction_move_list(struct ir_instruction_list*
   return new_list;
 }
 
-struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, bool high_level) {
-  struct ir_instruction_list* list = ir_instruction_move_list(new_list, old_list, high_level);
-  ir_instruction_destroy_list(old_list, high_level);
+struct ir_instruction_list* ir_instruction_move_and_destroy_list(struct ir_instruction_list* new_list, struct ir_instruction_list* old_list, enum ir_instruction_level level) {
+  struct ir_instruction_list* list = ir_instruction_move_list(new_list, old_list, level);
+  ir_instruction_destroy_list(old_list, level);
   return list;
 }
 

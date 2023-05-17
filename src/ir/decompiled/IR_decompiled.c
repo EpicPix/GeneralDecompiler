@@ -48,7 +48,7 @@ static void ir_decompiled_print_instruction(struct ir_instruction_low* instr) {
 }
 
 void ir_decompiled_print(struct ir_data data) {
-  if(data.is_high_level) return;
+  if(data.instruction_level != ir_instruction_level_low) return;
 
   struct ir_instruction_list* instructions = data.instructions;
   while(instructions) {
