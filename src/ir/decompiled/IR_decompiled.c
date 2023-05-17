@@ -17,43 +17,48 @@ static const char* ir_decompiled_get_type_name(ir_type_t type) {
   return "unktype";
 }
 
-static void ir_decompiled_print_location(struct ir_instruction_low_location loc) {
-  if(loc.location_type == ir_instruction_low_location_type_immediate) {
+static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* instr);
+
+static void ir_decompiled_print_location(struct ir_instruction_collapsed_location loc) {
+  if(loc.location_type == ir_instruction_collapsed_location_type_immediate) {
     printf("%ld", loc.data.imm);
-  }else if(loc.location_type == ir_instruction_low_location_type_register) {
+  }else if(loc.location_type == ir_instruction_collapsed_location_type_register) {
     if(loc.data.reg >> 63) {
       printf("rx%ld", -loc.data.reg);
     }else {
       printf("r%ld", loc.data.reg);
     }
+  }else if(loc.location_type == ir_instruction_collapsed_location_type_inlined) {
+    printf("(");
+    ir_decompiled_print_instruction(loc.data.instr);
+    printf(")");
   }
 }
 
-static void ir_decompiled_print_instruction(struct ir_instruction_low* instr) {
-  if(instr->type == ir_instruction_low_type_mov) {
+static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* instr) {
+  if(instr->type == ir_instruction_collapsed_type_mov) {
     printf("%s ", ir_decompiled_get_type_name(instr->data.mov.output.type));
     ir_decompiled_print_location(instr->data.mov.output);
     printf(" = ");
     ir_decompiled_print_location(instr->data.mov.input);
-    printf(";\n");
-  }else if(instr->type == ir_instruction_low_type_add) {
+  }else if(instr->type == ir_instruction_collapsed_type_add) {
     printf("%s ", ir_decompiled_get_type_name(instr->data.add.output.type));
     ir_decompiled_print_location(instr->data.add.output);
     printf(" = ");
     ir_decompiled_print_location(instr->data.add.inputa);
     printf(" + ");
     ir_decompiled_print_location(instr->data.add.inputb);
-    printf(";\n");
   }
 }
 
 void ir_decompiled_print(struct ir_data data) {
-  if(data.instruction_level != ir_instruction_level_low) return;
+  if(data.instruction_level != ir_instruction_level_collapsed) return;
 
   struct ir_instruction_list* instructions = data.instructions;
   while(instructions) {
     for(uint64_t i = 0; i<instructions->instruction_count; i++) {
-      ir_decompiled_print_instruction(&instructions->instructions.low_level[i]);
+      ir_decompiled_print_instruction(&instructions->instructions.collapsed_level[i]);
+      printf(";\n");
     }
     instructions = instructions->next;
   }
