@@ -4,7 +4,16 @@
 #include <stdio.h>
 
 struct ir_data ir_collapse(struct ir_data data) {
-  return data;
+  struct ir_symbol_table* symbol_table = ir_symbol_create_table(NULL);
+  struct ir_instruction_list* instructions_out = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_collapsed);
+  
+  return (struct ir_data) {
+    .instruction_level = ir_instruction_level_collapsed,
+    .instructions = instructions_out,
+    .memory_page_start = data.memory_page_start,
+    .symbol_table = symbol_table,
+    .type_table = data.type_table
+  };
 }
 
 
