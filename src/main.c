@@ -60,9 +60,15 @@ int main(int argc, char** argv) {
   ir_print_instructions(ir_data_low);
 #endif
   DEBUG_LOG("main", "%s", "Optmizing IR...");
-  struct ir_data ir_data = ir_optimize(ir_data_low);
+  struct ir_data ir_data_optimized = ir_optimize(ir_data_low);
 #ifdef DEBUG
   DEBUG_LOG("main", "%s", "Printing optimized IR");
+  ir_print_instructions(ir_data_optimized);
+#endif
+  DEBUG_LOG("main", "%s", "Collapsing IR...");
+  struct ir_data ir_data = ir_collapse(ir_data_optimized);
+#ifdef DEBUG
+  DEBUG_LOG("main", "%s", "Printing collapsed IR");
   ir_print_instructions(ir_data);
 #endif
   DEBUG_LOG("main", "Optimized IR. Symbol table at %p, printing decompiled code...", ir_data.symbol_table);

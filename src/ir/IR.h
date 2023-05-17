@@ -49,5 +49,6 @@ struct ir_data {
 
 struct ir_data ir_lower_level(struct ir_data data);
 struct ir_data ir_optimize(struct ir_data data);
+struct ir_data ir_collapse(struct ir_data data);
 void ir_print_instructions(struct ir_data data);
 void ir_decompiled_print(struct ir_data data);
