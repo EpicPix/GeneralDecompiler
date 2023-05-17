@@ -418,6 +418,15 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
       }else if(opcode == 0x05) { // iconst_2
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 2 } } } } });
         continue;
+      }else if(opcode == 0x06) { // iconst_3
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 3 } } } } });
+        continue;
+      }else if(opcode == 0x07) { // iconst_4
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 4 } } } } });
+        continue;
+      }else if(opcode == 0x08) { // iconst_5
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 5 } } } } });
+        continue;
       }else if(opcode == 0x15) { // iload
         if(x+1>=code->code_length) {
           ARCH_LOG("Not enough data for opcode 0x%02x, stopping generation", opcode);
