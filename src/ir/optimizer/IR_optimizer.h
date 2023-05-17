@@ -44,3 +44,5 @@ struct ir_optimize_register_usage_data* ir_optimize_increment_register_usage_map
 struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data);
 void ir_optimize_prepare_step2(struct ir_optimize_data* data);
 struct ir_instruction_list* ir_optimize_step2(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data);
+void ir_optimize_prepare_step3(struct ir_optimize_data* data);
+struct ir_instruction_list* ir_optimize_step3(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data);
