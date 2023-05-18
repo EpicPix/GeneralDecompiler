@@ -35,9 +35,21 @@ struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output
     return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
-        .movoin = {
+        .mov = {
           .input = (struct ir_instruction_low_location) { .type = mapping->loc.loc.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = mapping->reg } },
           .output = instr->data.movoin.output
+        }
+      }
+    });
+  }else if(instr->type == ir_instruction_low_type_mov_offsetinout) {
+    struct ir_optimize_location_mapping* mappingin = ir_optimize_get_or_create_mapping(instr->data.movoinout.input, data);
+    struct ir_optimize_location_mapping* mappingout = ir_optimize_get_or_create_mapping(instr->data.movoinout.output, data);
+    return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
+      .type = ir_instruction_low_type_mov,
+      .data = {
+        .mov = {
+          .input = (struct ir_instruction_low_location) { .type = mappingin->loc.loc.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = mappingin->reg } },
+          .output = (struct ir_instruction_low_location) { .type = mappingout->loc.loc.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = mappingout->reg } },
         }
       }
     });

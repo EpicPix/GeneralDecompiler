@@ -31,6 +31,12 @@ enum ir_instruction_high_type {
   ir_instruction_high_type_pop,
   ir_instruction_high_type_push,
   ir_instruction_high_type_add,
+  ir_instruction_high_type_intrinsic,
+  ir_instruction_high_type_intrinsic_typed,
+};
+
+enum ir_instruction_high_type_intrinsics {
+    ir_instruction_high_type_intrinsic_jvm_dup,
 };
 
 struct ir_instruction_high {
@@ -51,6 +57,11 @@ struct ir_instruction_high {
     struct ir_instruction_high_data_o {
       struct ir_instruction_high_location output;
     } o;
+    enum ir_instruction_high_type_intrinsics intrinsic;
+    struct ir_instruction_high_data_intrinsic_typed {
+        enum ir_instruction_high_type_intrinsics intrinsic;
+        ir_type_t type;
+    } intrinsic_typed;
   } data;
 };
 

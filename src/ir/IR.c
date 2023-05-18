@@ -82,6 +82,29 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
           }
         }
       });
+  }else if(high_instruction->type == ir_instruction_high_type_intrinsic) {
+  }else if(high_instruction->type == ir_instruction_high_type_intrinsic_typed) {
+    if(high_instruction->data.intrinsic_typed.intrinsic == ir_instruction_high_type_intrinsic_jvm_dup) {
+      ir_type_t type = high_instruction->data.intrinsic_typed.type;
+      uint64_t off = (ir_type_bit_size(type, type_table) + 7) >> 3;
+      output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
+        {
+          .type = ir_instruction_low_type_mov_offsetinout,
+          .data = {
+            .movoinout = {
+              .output = {
+                .loc = { .type = type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
+                .offset = { .type = type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data - off } }
+              },
+              .input = {
+                .loc = { .type = type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
+                .offset = { .type = type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
+              }
+            }
+          }
+        });
+      translation_data->stack_data -= off;
+    }
   }
   return output_instructions;
 }
@@ -166,6 +189,12 @@ static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
     ir_print_instruction_high_location(&instr->data.oii.inputa);
     printf(", ");
     ir_print_instruction_high_location(&instr->data.oii.inputb);
+  }else if(instr->type == ir_instruction_high_type_intrinsic) {
+    printf("intrinsic %d", instr->data.intrinsic);
+  }else if(instr->type == ir_instruction_high_type_intrinsic_typed) {
+    printf("intrinsic ");
+    ir_print_instruction_print_type(instr->data.intrinsic_typed.type);
+    printf(" %d", instr->data.intrinsic);
   }
 }
 
@@ -211,6 +240,16 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.movoin.input.loc);
     printf(" + ");
     ir_print_instruction_low_location(&instr->data.movoin.input.offset);
+    printf(")");
+  }else if(instr->type == ir_instruction_low_type_mov_offsetinout) {
+    printf("movoio (");
+    ir_print_instruction_low_location(&instr->data.movoinout.output.loc);
+    printf(" + ");
+    ir_print_instruction_low_location(&instr->data.movoinout.output.offset);
+    printf("), (");
+    ir_print_instruction_low_location(&instr->data.movoinout.input.loc);
+    printf(" + ");
+    ir_print_instruction_low_location(&instr->data.movoinout.input.offset);
     printf(")");
   }else if(instr->type == ir_instruction_low_type_add) {
     printf("add ");

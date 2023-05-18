@@ -465,6 +465,9 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
       }else if(opcode == 0x3e) { // istore_3
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = 3 } } } } });
         continue;
+      }else if(opcode == 0x59) { // dup
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_intrinsic_typed, .data = { .intrinsic_typed = { .intrinsic = ir_instruction_high_type_intrinsic_jvm_dup, .type = ir_type_s32 } } } );
+        continue;
       }else if(opcode == 0x60) { // iadd
         instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_add, .data = {
               .oii = {
