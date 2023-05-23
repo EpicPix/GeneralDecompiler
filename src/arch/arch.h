@@ -17,3 +17,4 @@ const arch_info* arch_get(const char* name);
 
 extern const arch_info arch_jvm;
 extern const arch_info arch_elf;
+extern const arch_info arch_x86_64;
