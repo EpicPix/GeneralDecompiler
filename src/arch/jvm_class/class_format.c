@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../ir/IR.h"
+#include "../../ir/IR.h"
 #include "class_format.h"
-#include "../byte_reader.h"
+#include "../../byte_reader.h"
 #include "class_format_loaded.h"
 #include "class_format_prepared.h"
 

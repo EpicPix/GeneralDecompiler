@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "../arch/arch.h"
-#include "../utils.h"
+#include "../arch.h"
+#include "../../utils.h"
 
 #include "class_format_loaded.h"
 #include "class_format_prepared.h"
