@@ -16,3 +16,4 @@ typedef struct arch_info {
 const arch_info* arch_get(const char* name);
 
 extern const arch_info arch_jvm;
+extern const arch_info arch_elf;

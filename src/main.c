@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include "ir/IR.h"
 #include "arch/arch.h"
-#include "elf/elf.h"
 #include "utils.h"
 
 int main(int argc, char** argv) {

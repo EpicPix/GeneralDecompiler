@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <endian.h>
-#include "../byte_reader.h"
+#include "../../byte_reader.h"
 
-void elf_read(uint8_t* bytes, int byte_count) {
+static void* arch_load_data(uint8_t* bytes, int byte_count) {
   int index = 0;
   if(read_byte(bytes, &index, byte_count) != 0x7F || read_byte(bytes, &index, byte_count) != 'E' || read_byte(bytes, &index, byte_count) != 'L' || read_byte(bytes, &index, byte_count) != 'F') {
     fprintf(stderr, "Invalid ELF header\n");
@@ -86,4 +86,25 @@ void elf_read(uint8_t* bytes, int byte_count) {
       }
     }
   }
+  return NULL;
 }
+
+static void* arch_prepare_data(void* loaded_data) {
+  return NULL;
+}
+
+static struct ir_data arch_generate_ir(void* prepared_data) {
+  return (struct ir_data) {
+    .instruction_level = ir_instruction_level_high,
+    .instructions = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_high),
+    .symbol_table = ir_symbol_create_table(NULL),
+    .type_table = NULL,
+    .memory_page_start = NULL
+  };
+}
+
+const arch_info arch_elf = (const arch_info){
+  .load_data = arch_load_data,
+  .prepare_data = arch_prepare_data,
+  .generate_ir = arch_generate_ir,
+};
