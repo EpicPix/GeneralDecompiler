@@ -17,6 +17,14 @@ static void* arch_prepare_data(void* loaded_data) {
   return loaded_data;
 }
 
+static struct ir_instruction_high_location arch_modrm_location(uint8_t mod, uint8_t rm, ir_type_t type) {
+  if(mod != 3) {
+    TODO("Unsupported mod in mod/rm byte: %d", mod);
+  }
+
+  return (struct ir_instruction_high_location) { .type = type, .location_type = ir_instruction_high_location_type_register, .data = { .reg = rm } };
+}
+
 static struct ir_data arch_generate_ir(void* prepared_data) {
   struct arch_data* data = prepared_data;
   struct ir_instruction_list* instructions = ir_instruction_create_list(NULL, 0x10000, 1024, ir_instruction_level_high);
@@ -33,6 +41,20 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
           .oi = {
             .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = opreg } },
             .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = imm } }
+          }
+        }
+      });
+    }else if(instr == 0x01) {
+      uint8_t modrm = read_byte(data->bytes, &index, data->byte_count);
+      uint8_t reg = (modrm >> 3) & 0x7;
+
+      instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) {
+        .type = ir_instruction_high_type_add,
+        .data = {
+          .oii = {
+            .inputa = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32),
+            .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = reg } },
+            .output = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32)
           }
         }
       });
