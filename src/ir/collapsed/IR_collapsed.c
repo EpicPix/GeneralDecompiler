@@ -44,6 +44,17 @@ static struct ir_instruction_list* ir_collapse_convert_low(struct ir_instruction
         }
       }
     });
+  }else if(instr->type == ir_instruction_low_type_mul) {
+    return ir_instruction_add_instruction_collapsed(list, 1024, (struct ir_instruction_collapsed) {
+      .type = ir_instruction_collapsed_type_mul,
+      .data = {
+        .mul = {
+          .inputa = ir_collapse_convert_location(instr->data.add.inputa),
+          .inputb = ir_collapse_convert_location(instr->data.add.inputb),
+          .output = ir_collapse_convert_location(instr->data.add.output)
+        }
+      }
+    });
   }
   return list;
 }
@@ -97,6 +108,13 @@ static struct ir_collapse_data ir_collapse_prepare_data(struct ir_data data) {
         struct ir_instruction_collapsed_location mib = ir_collapse_convert_location(instr->data.add.inputb);
         ir_collapse_increment_register_usage_mapping(&mib, &cdata);
         struct ir_instruction_collapsed_location mo = ir_collapse_convert_location(instr->data.add.output);
+        ir_collapse_increment_register_usage_mapping(&mo, &cdata);
+      }else if(instr->type == ir_instruction_low_type_mul) {
+        struct ir_instruction_collapsed_location mia = ir_collapse_convert_location(instr->data.mul.inputa);
+        ir_collapse_increment_register_usage_mapping(&mia, &cdata);
+        struct ir_instruction_collapsed_location mib = ir_collapse_convert_location(instr->data.mul.inputb);
+        ir_collapse_increment_register_usage_mapping(&mib, &cdata);
+        struct ir_instruction_collapsed_location mo = ir_collapse_convert_location(instr->data.mul.output);
         ir_collapse_increment_register_usage_mapping(&mo, &cdata);
       }
     }

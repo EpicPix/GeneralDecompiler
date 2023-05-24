@@ -48,6 +48,13 @@ static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* ins
     ir_decompiled_print_location(instr->data.add.inputa);
     printf(" + ");
     ir_decompiled_print_location(instr->data.add.inputb);
+  }else if(instr->type == ir_instruction_collapsed_type_mul) {
+    printf("%s ", ir_decompiled_get_type_name(instr->data.mul.output.type));
+    ir_decompiled_print_location(instr->data.mul.output);
+    printf(" = ");
+    ir_decompiled_print_location(instr->data.mul.inputa);
+    printf(" * ");
+    ir_decompiled_print_location(instr->data.mul.inputb);
   }
 }
 

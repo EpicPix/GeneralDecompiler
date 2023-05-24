@@ -16,6 +16,7 @@ enum ir_instruction_collapsed_location_type {
 
 enum ir_instruction_collapsed_type {
     ir_instruction_collapsed_type_mov,
+    ir_instruction_collapsed_type_mul,
     ir_instruction_collapsed_type_add,
 };
 
@@ -42,6 +43,11 @@ struct ir_instruction_collapsed {
             struct ir_instruction_collapsed_location inputb;
             struct ir_instruction_collapsed_location output;
         } add;
+        struct ir_instruction_collapsed_data_mul {
+            struct ir_instruction_collapsed_location inputa;
+            struct ir_instruction_collapsed_location inputb;
+            struct ir_instruction_collapsed_location output;
+        } mul;
     } data;
 };
 

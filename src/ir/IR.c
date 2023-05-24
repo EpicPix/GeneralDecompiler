@@ -43,6 +43,23 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
         }
       });
     output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
+  }else if(high_instruction->type == ir_instruction_high_type_mul) {
+    struct ir_instruction_high_data_oii data = high_instruction->data.oii;
+    struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(ir_instruction_level_low);
+    struct ir_instruction_low_location inputb = ir_lower_level_unpack_location(data.inputb, &output_instructions, type_table, translation_data);
+    struct ir_instruction_low_location inputa = ir_lower_level_unpack_location(data.inputa, &output_instructions, type_table, translation_data);
+    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
+      {
+        .type = ir_instruction_low_type_mul,
+        .data = {
+          .mul = {
+            .inputa = inputa,
+            .inputb = inputb,
+            .output = ir_lower_level_unpack_location(data.output, &temporary_instructions, type_table, translation_data)
+          }
+        }
+      });
+    output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
   }else if(high_instruction->type == ir_instruction_high_type_pop) {
     struct ir_instruction_high_data_i data = high_instruction->data.i;
     struct ir_instruction_low_location_with_offset lo =
@@ -203,6 +220,13 @@ static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
     ir_print_instruction_high_location(&instr->data.oii.inputa);
     printf(", ");
     ir_print_instruction_high_location(&instr->data.oii.inputb);
+  }else if(instr->type == ir_instruction_high_type_mul) {
+    printf("mul ");
+    ir_print_instruction_high_location(&instr->data.oii.output);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputa);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputb);
   }else if(instr->type == ir_instruction_high_type_mov) {
     printf("mov ");
     ir_print_instruction_high_location(&instr->data.oi.output);
@@ -277,6 +301,13 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.add.inputa);
     printf(", ");
     ir_print_instruction_low_location(&instr->data.add.inputb);
+  }else if(instr->type == ir_instruction_low_type_mul) {
+    printf("mul ");
+    ir_print_instruction_low_location(&instr->data.add.output);
+    printf(", ");
+    ir_print_instruction_low_location(&instr->data.add.inputa);
+    printf(", ");
+    ir_print_instruction_low_location(&instr->data.add.inputb);
   }else if(instr->type == ir_instruction_low_type_norelso) {
     printf("norel (");
     ir_print_instruction_low_location(&instr->data.norel.loc.loc);
@@ -328,6 +359,13 @@ static void ir_print_instruction_collapsed_inl(struct ir_instruction_collapsed* 
     ir_print_instruction_collapsed_location(&instr->data.add.inputa);
     printf(", ");
     ir_print_instruction_collapsed_location(&instr->data.add.inputb);
+  }else if(instr->type == ir_instruction_collapsed_type_mul) {
+    printf("mul ");
+    ir_print_instruction_collapsed_location(&instr->data.mul.output);
+    printf(", ");
+    ir_print_instruction_collapsed_location(&instr->data.mul.inputa);
+    printf(", ");
+    ir_print_instruction_collapsed_location(&instr->data.mul.inputb);
   }
 }
 

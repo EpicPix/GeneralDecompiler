@@ -13,6 +13,11 @@ static struct ir_instruction_list* ir_optimize_step1_put_instruction(struct ir_i
     ir_optimize_increment_register_usage_mapping(&instr.data.add.inputb, NULL, data);
     ir_optimize_increment_register_usage_mapping(&instr.data.add.output, NULL, data);
   }
+  if(instr.type == ir_instruction_low_type_mul) {
+    ir_optimize_increment_register_usage_mapping(&instr.data.add.inputa, NULL, data);
+    ir_optimize_increment_register_usage_mapping(&instr.data.add.inputb, NULL, data);
+    ir_optimize_increment_register_usage_mapping(&instr.data.add.output, NULL, data);
+  }
   return ir_instruction_add_instruction_low(output, 1024, instr);
 }
 
