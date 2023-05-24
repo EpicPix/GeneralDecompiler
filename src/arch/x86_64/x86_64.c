@@ -58,6 +58,21 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
           }
         }
       });
+    }else if(instr == 0xff) {
+      uint8_t modrm = read_byte(data->bytes, &index, data->byte_count);
+      uint8_t reg = (modrm >> 3) & 0x7;
+      if(reg == 0) {
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) {
+          .type = ir_instruction_high_type_add,
+          .data = {
+            .oii = {
+              .inputa = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32),
+              .inputb = {.type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 1 }},
+              .output = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32)
+            }
+          }
+        });
+      }
     }
   }
 
