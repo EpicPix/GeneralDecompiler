@@ -16,3 +16,9 @@ double read_double(uint8_t* bytes, int* index, int byte_count, bool le);
 #define read_long_be(bytes, index, byte_count) read_long(bytes, index, byte_count, false)
 #define read_float_be(bytes, index, byte_count) read_float(bytes, index, byte_count, false)
 #define read_double_be(bytes, index, byte_count) read_double(bytes, index, byte_count, false)
+
+#define read_word_le(bytes, index, byte_count) read_word(bytes, index, byte_count, true)
+#define read_int_le(bytes, index, byte_count) read_int(bytes, index, byte_count, true)
+#define read_long_le(bytes, index, byte_count) read_long(bytes, index, byte_count, true)
+#define read_float_le(bytes, index, byte_count) read_float(bytes, index, byte_count, true)
+#define read_double_le(bytes, index, byte_count) read_double(bytes, index, byte_count, true)

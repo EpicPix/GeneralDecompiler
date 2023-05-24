@@ -82,6 +82,20 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
           }
         }
       });
+  }else if(high_instruction->type == ir_instruction_high_type_mov) {
+    struct ir_instruction_high_data_oi data = high_instruction->data.oi;
+    struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(ir_instruction_level_low);
+    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
+      {
+        .type = ir_instruction_low_type_mov,
+        .data = {
+          .mov = {
+            .input = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data),
+            .output = ir_lower_level_unpack_location(data.output, &temporary_instructions, type_table, translation_data)
+          }
+        }
+      });
+    output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
   }else if(high_instruction->type == ir_instruction_high_type_intrinsic) {
   }else if(high_instruction->type == ir_instruction_high_type_intrinsic_typed) {
     if(high_instruction->data.intrinsic_typed.intrinsic == ir_instruction_high_type_intrinsic_jvm_dup) {
@@ -189,6 +203,11 @@ static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
     ir_print_instruction_high_location(&instr->data.oii.inputa);
     printf(", ");
     ir_print_instruction_high_location(&instr->data.oii.inputb);
+  }else if(instr->type == ir_instruction_high_type_mov) {
+    printf("mov ");
+    ir_print_instruction_high_location(&instr->data.oi.output);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oi.input);
   }else if(instr->type == ir_instruction_high_type_intrinsic) {
     printf("intrinsic %d", instr->data.intrinsic);
   }else if(instr->type == ir_instruction_high_type_intrinsic_typed) {
