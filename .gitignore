@@ -4,3 +4,4 @@ local/
 .fleet/
 .vscode/
 .idea/
+generated/
