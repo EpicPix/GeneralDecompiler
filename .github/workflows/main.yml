@@ -13,6 +13,11 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
       
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
       - name: Set up GCC
         uses: egor-tensin/setup-gcc@v1
         with:
