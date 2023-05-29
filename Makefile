@@ -7,7 +7,7 @@ clean:
 	mkdir -p out
 	rm -rf out/*
 	rm -f $(subst .test,.test.run,$(TESTS)) $(subst .test,.o,$(TESTS))
-	rm -rf $(find -name "generated")
+	rm -rf $(shell find -name "generated")
 
 decompiler_debug: $(SRC)
 	node srcgen/source_generator.js srcgen_data/ src/
