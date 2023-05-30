@@ -1,2 +1,21 @@
 [
+  {
+    "enc": { "b": 184, "bm": 248 },
+    "dat": [ "reg/op/& 0x07", "imm/16" ],
+    "gen": { "t": "mov", "s": "u32", "op": { "dst": "dyn/0", "src": "dyn/1" } }
+  },
+  {
+    "enc": { "b": 1, "modrm": true },
+    "dat": [ "rm/modrm/s32", "reg/modrm" ],
+    "gen": { "t": "add", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "dyn/1" } }
+  },
+  {
+    "enc": { "b": 255, "modrm": true, "rmreg": true },
+    "rmreg": {
+      "0": {
+        "dat": [ "rm/modrm/s32" ],
+        "gen": { "t": "add", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "imm/1" } }
+      }
+    }
+  }
 ]

@@ -31,49 +31,7 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
 
   int index = 0;
   while(index < data->byte_count) {
-    uint8_t instr = read_byte(data->bytes, &index, data->byte_count);
-    if((instr & 0xF8) == 0xB8) {
-      uint32_t opreg = instr & 0x7;
-      uint32_t imm = read_word_le(data->bytes, &index, data->byte_count);
-      instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) {
-        .type = ir_instruction_high_type_mov,
-        .data = {
-          .oi = {
-            .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = opreg } },
-            .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = imm } }
-          }
-        }
-      });
-    }else if(instr == 0x01) {
-      uint8_t modrm = read_byte(data->bytes, &index, data->byte_count);
-      uint8_t reg = (modrm >> 3) & 0x7;
-
-      instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) {
-        .type = ir_instruction_high_type_add,
-        .data = {
-          .oii = {
-            .inputa = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32),
-            .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = reg } },
-            .output = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32)
-          }
-        }
-      });
-    }else if(instr == 0xff) {
-      uint8_t modrm = read_byte(data->bytes, &index, data->byte_count);
-      uint8_t reg = (modrm >> 3) & 0x7;
-      if(reg == 0) {
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) {
-          .type = ir_instruction_high_type_add,
-          .data = {
-            .oii = {
-              .inputa = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32),
-              .inputb = {.type = ir_type_s32, .location_type = ir_instruction_high_location_type_immediate, .data = { .imm = 1 }},
-              .output = arch_modrm_location(modrm >> 6, modrm & 0x7, ir_type_s32)
-            }
-          }
-        });
-      }
-    }
+#include "generated/instructions_x86_64_include.h"
   }
 
   return (struct ir_data) {
