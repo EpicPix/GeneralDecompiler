@@ -12,6 +12,42 @@ const input = path.resolve(args[0]);
 const output = path.resolve(args[1]);
 
 function runSourceGenerator() {
+    runSourceGenerator_x86_64();
+    runSourceGenerator_ir_level_collapsed();
+}
+
+
+function runSourceGenerator_ir_level_collapsed() {
+    const instructions_ir_level_collapsed = readFile("instructions_ir_level_collapsed");
+    const stream = generateFile("ir", "instructions_ir_level_collapsed_include.h");
+
+    stream.writeln("enum ir_instruction_collapsed_type {");
+    for(const name of Object.keys(instructions_ir_level_collapsed)) {
+        stream.writeln(`  ir_instruction_collapsed_type_${name},`);
+    }
+    stream.writeln("};");
+    stream.writeln("");
+    stream.writeln("struct ir_instruction_collapsed {");
+    stream.writeln("  enum ir_instruction_collapsed_type type;");
+    stream.writeln("  union {");
+    for(const [name, data] of Object.entries(instructions_ir_level_collapsed)) {
+        stream.writeln(`    struct ir_instruction_collapsed_data_${name} {`);
+        if(data['op'] === "oi") {
+            stream.writeln(`      struct ir_instruction_collapsed_location output;`);
+            stream.writeln(`      struct ir_instruction_collapsed_location input;`);
+        }else if(data['op'] === 'oii') {
+            stream.writeln(`      struct ir_instruction_collapsed_location output;`);
+            stream.writeln(`      struct ir_instruction_collapsed_location inputa;`);
+            stream.writeln(`      struct ir_instruction_collapsed_location inputb;`);
+        }
+        stream.writeln(`    } ${name};`);
+    }
+    stream.writeln("  } data;");
+    stream.writeln("};");
+    stream.close();
+}
+
+function runSourceGenerator_x86_64() {
     const instructions_x86_64 = readFile("instructions_x86_64");
     const stream = generateFile("arch/x86_64", "instructions_x86_64_include.h");
     stream.writeln(`uint8_t instr_byte = read_byte(data->bytes, &index, data->byte_count);`);

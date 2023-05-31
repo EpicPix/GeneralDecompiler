@@ -14,12 +14,6 @@ enum ir_instruction_collapsed_location_type {
     ir_instruction_collapsed_location_type_inherit,
 };
 
-enum ir_instruction_collapsed_type {
-    ir_instruction_collapsed_type_mov,
-    ir_instruction_collapsed_type_mul,
-    ir_instruction_collapsed_type_add,
-};
-
 struct ir_instruction_collapsed_location {
     ir_type_t type;
     enum ir_instruction_collapsed_location_type location_type;
@@ -31,25 +25,7 @@ struct ir_instruction_collapsed_location {
     } data;
 };
 
-struct ir_instruction_collapsed {
-    enum ir_instruction_collapsed_type type;
-    union {
-        struct ir_instruction_collapsed_data_mov {
-            struct ir_instruction_collapsed_location output;
-            struct ir_instruction_collapsed_location input;
-        } mov;
-        struct ir_instruction_collapsed_data_add {
-            struct ir_instruction_collapsed_location inputa;
-            struct ir_instruction_collapsed_location inputb;
-            struct ir_instruction_collapsed_location output;
-        } add;
-        struct ir_instruction_collapsed_data_mul {
-            struct ir_instruction_collapsed_location inputa;
-            struct ir_instruction_collapsed_location inputb;
-            struct ir_instruction_collapsed_location output;
-        } mul;
-    } data;
-};
+#include "generated/instructions_ir_level_collapsed_include.h"
 
 bool ir_instruction_compare_locations_collapsed(struct ir_instruction_collapsed_location location_a, struct ir_instruction_collapsed_location location_b);
 
