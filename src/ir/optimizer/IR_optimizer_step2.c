@@ -93,17 +93,31 @@ struct ir_instruction_list* ir_optimize_step2(struct ir_instruction_list* output
         }
       }
     });
+  }else if(instr->type == ir_instruction_low_type_sub) {
+    struct ir_optimize_register_usage_tree_result res_ina = ir_optimize_find_tree_node(data, instr->data.sub.inputa);
+    struct ir_optimize_register_usage_tree_result res_inb = ir_optimize_find_tree_node(data, instr->data.sub.inputb);
+    struct ir_optimize_register_usage_tree_result res_out = ir_optimize_find_tree_node(data, instr->data.sub.output);
+    return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
+      .type = ir_instruction_low_type_sub,
+      .data = {
+        .sub = {
+          .inputa = res_ina.root ? res_ina.root->source : instr->data.sub.inputa,
+          .inputb = res_inb.root ? res_inb.root->source : instr->data.sub.inputb,
+          .output = res_out.root ? res_out.root->source : instr->data.sub.output
+        }
+      }
+    });
   }else if(instr->type == ir_instruction_low_type_mul) {
-    struct ir_optimize_register_usage_tree_result res_ina = ir_optimize_find_tree_node(data, instr->data.add.inputa);
-    struct ir_optimize_register_usage_tree_result res_inb = ir_optimize_find_tree_node(data, instr->data.add.inputb);
-    struct ir_optimize_register_usage_tree_result res_out = ir_optimize_find_tree_node(data, instr->data.add.output);
+    struct ir_optimize_register_usage_tree_result res_ina = ir_optimize_find_tree_node(data, instr->data.mul.inputa);
+    struct ir_optimize_register_usage_tree_result res_inb = ir_optimize_find_tree_node(data, instr->data.mul.inputb);
+    struct ir_optimize_register_usage_tree_result res_out = ir_optimize_find_tree_node(data, instr->data.mul.output);
     return ir_instruction_add_instruction_low(output, 1024, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mul,
       .data = {
-        .add = {
-          .inputa = res_ina.root ? res_ina.root->source : instr->data.add.inputa,
-          .inputb = res_inb.root ? res_inb.root->source : instr->data.add.inputb,
-          .output = res_out.root ? res_out.root->source : instr->data.add.output
+        .mul = {
+          .inputa = res_ina.root ? res_ina.root->source : instr->data.mul.inputa,
+          .inputb = res_inb.root ? res_inb.root->source : instr->data.mul.inputb,
+          .output = res_out.root ? res_out.root->source : instr->data.mul.output
         }
       }
     });

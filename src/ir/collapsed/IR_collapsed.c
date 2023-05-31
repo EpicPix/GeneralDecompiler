@@ -44,14 +44,25 @@ static struct ir_instruction_list* ir_collapse_convert_low(struct ir_instruction
         }
       }
     });
+  }else if(instr->type == ir_instruction_low_type_sub) {
+    return ir_instruction_add_instruction_collapsed(list, 1024, (struct ir_instruction_collapsed) {
+      .type = ir_instruction_collapsed_type_sub,
+      .data = {
+        .sub = {
+          .inputa = ir_collapse_convert_location(instr->data.sub.inputa),
+          .inputb = ir_collapse_convert_location(instr->data.sub.inputb),
+          .output = ir_collapse_convert_location(instr->data.sub.output)
+        }
+      }
+    });
   }else if(instr->type == ir_instruction_low_type_mul) {
     return ir_instruction_add_instruction_collapsed(list, 1024, (struct ir_instruction_collapsed) {
       .type = ir_instruction_collapsed_type_mul,
       .data = {
         .mul = {
-          .inputa = ir_collapse_convert_location(instr->data.add.inputa),
-          .inputb = ir_collapse_convert_location(instr->data.add.inputb),
-          .output = ir_collapse_convert_location(instr->data.add.output)
+          .inputa = ir_collapse_convert_location(instr->data.mul.inputa),
+          .inputb = ir_collapse_convert_location(instr->data.mul.inputb),
+          .output = ir_collapse_convert_location(instr->data.mul.output)
         }
       }
     });

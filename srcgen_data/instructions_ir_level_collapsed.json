@@ -1,5 +1,6 @@
 {
   "mov": { "op": "oi" },
   "add": { "op": "oii" },
+  "sub": { "op": "oii" },
   "mul": { "op": "oii" }
 }

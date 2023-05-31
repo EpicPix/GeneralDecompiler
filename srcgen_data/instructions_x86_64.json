@@ -10,11 +10,20 @@
     "gen": { "t": "add", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "dyn/1" } }
   },
   {
+    "enc": { "b": 41, "modrm": true },
+    "dat": [ "rm/modrm/s32", "reg/modrm" ],
+    "gen": { "t": "sub", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "dyn/1" } }
+  },
+  {
     "enc": { "b": 255, "modrm": true, "rmreg": true },
     "rmreg": {
       "0": {
         "dat": [ "rm/modrm/s32" ],
         "gen": { "t": "add", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "imm/1" } }
+      },
+      "1": {
+        "dat": [ "rm/modrm/s32" ],
+        "gen": { "t": "sub", "s": "u32", "op": { "dst": "dyn/0", "src_a": "dyn/0", "src_b": "imm/1" } }
       }
     }
   }
