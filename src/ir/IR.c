@@ -263,6 +263,14 @@ static void ir_print_instruction_low_location(struct ir_instruction_low_location
   }
 }
 
+static void ir_print_instruction_low_location_offset(struct ir_instruction_low_location_with_offset* loc) {
+  printf("(");
+  ir_print_instruction_low_location(&loc->loc);
+  printf(" + ");
+  ir_print_instruction_low_location(&loc->offset);
+  printf(")");
+}
+
 static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
   if(instr->type == ir_instruction_low_type_mov) {
     printf("mov ");
@@ -270,30 +278,20 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     printf(", ");
     ir_print_instruction_low_location(&instr->data.mov.input);
   }else if(instr->type == ir_instruction_low_type_movoo) {
-    printf("movoo (");
-    ir_print_instruction_low_location(&instr->data.movoo.output.loc);
-    printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoo.output.offset);
-    printf("), ");
+    printf("movoo ");
+    ir_print_instruction_low_location_offset(&instr->data.movoo.output);
+    printf(", ");
     ir_print_instruction_low_location(&instr->data.movoo.input);
   }else if(instr->type == ir_instruction_low_type_movoi) {
     printf("movoi ");
     ir_print_instruction_low_location(&instr->data.movoi.output);
-    printf(", (");
-    ir_print_instruction_low_location(&instr->data.movoi.input.loc);
-    printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoi.input.offset);
-    printf(")");
+    printf(", ");
+    ir_print_instruction_low_location_offset(&instr->data.movoi.input);
   }else if(instr->type == ir_instruction_low_type_movoio) {
-    printf("movoio (");
-    ir_print_instruction_low_location(&instr->data.movoio.output.loc);
-    printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoio.output.offset);
-    printf("), (");
-    ir_print_instruction_low_location(&instr->data.movoio.input.loc);
-    printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoio.input.offset);
-    printf(")");
+    printf("movoio ");
+    ir_print_instruction_low_location_offset(&instr->data.movoio.output);
+    printf(", ");
+    ir_print_instruction_low_location_offset(&instr->data.movoio.input);
   }else if(instr->type == ir_instruction_low_type_add) {
     printf("add ");
     ir_print_instruction_low_location(&instr->data.add.output);
@@ -309,11 +307,8 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     printf(", ");
     ir_print_instruction_low_location(&instr->data.add.inputb);
   }else if(instr->type == ir_instruction_low_type_norelso) {
-    printf("norel (");
-    ir_print_instruction_low_location(&instr->data.norelso.input.loc);
-    printf(" + ");
-    ir_print_instruction_low_location(&instr->data.norelso.input.offset);
-    printf(")");
+    printf("norel ");
+    ir_print_instruction_low_location_offset(&instr->data.norelso.input);
   }
 }
 
