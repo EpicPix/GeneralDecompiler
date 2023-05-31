@@ -1,9 +1,9 @@
 {
+  "movoio": { "op": "oi", "types": ["locoff", "loc"] },
+  "movoo": { "op": "oi", "types": ["loc", "locoff"] },
+  "movoi": { "op": "oi", "types": ["locoff", "locoff"] },
+  "norelso": { "op": "i", "types": ["locoff"] },
   "mov": { "op": "oi" },
-  "movoio": { "op": "Oi" },
-  "movoo": { "op": "oI" },
-  "movoi": { "op": "OI" },
   "add": { "op": "oii" },
-  "mul": { "op": "oii" },
-  "norelso": { "op": "I" }
+  "mul": { "op": "oii" }
 }
