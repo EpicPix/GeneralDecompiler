@@ -80,7 +80,7 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
         .type = ir_instruction_low_type_norelso,
-        .data = { .norel = { .loc = lo } }
+        .data = { .norel = { .input = lo } }
       });
     translation_data->stack_data += (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
   }else if(high_instruction->type == ir_instruction_high_type_push) {
@@ -310,9 +310,9 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.add.inputb);
   }else if(instr->type == ir_instruction_low_type_norelso) {
     printf("norel (");
-    ir_print_instruction_low_location(&instr->data.norel.loc.loc);
+    ir_print_instruction_low_location(&instr->data.norel.input.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.norel.loc.offset);
+    ir_print_instruction_low_location(&instr->data.norel.input.offset);
     printf(")");
   }
 }

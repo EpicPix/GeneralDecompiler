@@ -59,7 +59,7 @@ struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output
       }
     });
   }else if(instr->type == ir_instruction_low_type_norelso) {
-    bool mapping_removed = ir_optimize_remove_mapping(instr->data.norel.loc, data);
+    bool mapping_removed = ir_optimize_remove_mapping(instr->data.norel.input, data);
     if(mapping_removed) {
       return output;
     }

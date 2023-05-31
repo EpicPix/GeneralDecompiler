@@ -1,1 +1,9 @@
-[]
+{
+  "mov": { "op": "oi" },
+  "movoio": { "op": "Oi" },
+  "movoo": { "op": "oI" },
+  "movoi": { "op": "OI" },
+  "add": { "op": "oii" },
+  "mul": { "op": "oii" },
+  "norelso": { "op": "I" }
+}

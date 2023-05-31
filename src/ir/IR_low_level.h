@@ -73,7 +73,7 @@ struct ir_instruction_low {
             struct ir_instruction_low_location output;
         } mul;
         struct ir_instruction_low_data_norelso {
-            struct ir_instruction_low_location_with_offset loc;
+            struct ir_instruction_low_location_with_offset input;
         } norel;
     } data;
 };
