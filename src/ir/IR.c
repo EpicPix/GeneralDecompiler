@@ -69,9 +69,9 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
       };
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
-        .type = ir_instruction_low_type_mov_offsetin,
+        .type = ir_instruction_low_type_movoi,
         .data = {
-          .movoin = {
+          .movoi = {
             .output = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data),
             .input = lo
           }
@@ -80,7 +80,7 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
         .type = ir_instruction_low_type_norelso,
-        .data = { .norel = { .input = lo } }
+        .data = { .norelso = { .input = lo } }
       });
     translation_data->stack_data += (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
   }else if(high_instruction->type == ir_instruction_high_type_push) {
@@ -88,9 +88,9 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
     translation_data->stack_data -= (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
     output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
       {
-        .type = ir_instruction_low_type_mov_offsetout,
+        .type = ir_instruction_low_type_movoo,
         .data = {
-          .movoout = {
+          .movoo = {
             .output = {
               .loc = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
               .offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
@@ -120,9 +120,9 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
       uint64_t off = (ir_type_bit_size(type, type_table) + 7) >> 3;
       output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
         {
-          .type = ir_instruction_low_type_mov_offsetinout,
+          .type = ir_instruction_low_type_movoio,
           .data = {
-            .movoinout = {
+            .movoio = {
               .output = {
                 .loc = { .type = type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
                 .offset = { .type = type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data - off } }
@@ -269,30 +269,30 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.mov.output);
     printf(", ");
     ir_print_instruction_low_location(&instr->data.mov.input);
-  }else if(instr->type == ir_instruction_low_type_mov_offsetout) {
+  }else if(instr->type == ir_instruction_low_type_movoo) {
     printf("movoo (");
-    ir_print_instruction_low_location(&instr->data.movoout.output.loc);
+    ir_print_instruction_low_location(&instr->data.movoo.output.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoout.output.offset);
+    ir_print_instruction_low_location(&instr->data.movoo.output.offset);
     printf("), ");
-    ir_print_instruction_low_location(&instr->data.movoout.input);
-  }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
+    ir_print_instruction_low_location(&instr->data.movoo.input);
+  }else if(instr->type == ir_instruction_low_type_movoi) {
     printf("movoi ");
-    ir_print_instruction_low_location(&instr->data.movoin.output);
+    ir_print_instruction_low_location(&instr->data.movoi.output);
     printf(", (");
-    ir_print_instruction_low_location(&instr->data.movoin.input.loc);
+    ir_print_instruction_low_location(&instr->data.movoi.input.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoin.input.offset);
+    ir_print_instruction_low_location(&instr->data.movoi.input.offset);
     printf(")");
-  }else if(instr->type == ir_instruction_low_type_mov_offsetinout) {
+  }else if(instr->type == ir_instruction_low_type_movoio) {
     printf("movoio (");
-    ir_print_instruction_low_location(&instr->data.movoinout.output.loc);
+    ir_print_instruction_low_location(&instr->data.movoio.output.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoinout.output.offset);
+    ir_print_instruction_low_location(&instr->data.movoio.output.offset);
     printf("), (");
-    ir_print_instruction_low_location(&instr->data.movoinout.input.loc);
+    ir_print_instruction_low_location(&instr->data.movoio.input.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.movoinout.input.offset);
+    ir_print_instruction_low_location(&instr->data.movoio.input.offset);
     printf(")");
   }else if(instr->type == ir_instruction_low_type_add) {
     printf("add ");
@@ -310,9 +310,9 @@ static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
     ir_print_instruction_low_location(&instr->data.add.inputb);
   }else if(instr->type == ir_instruction_low_type_norelso) {
     printf("norel (");
-    ir_print_instruction_low_location(&instr->data.norel.input.loc);
+    ir_print_instruction_low_location(&instr->data.norelso.input.loc);
     printf(" + ");
-    ir_print_instruction_low_location(&instr->data.norel.input.offset);
+    ir_print_instruction_low_location(&instr->data.norelso.input.offset);
     printf(")");
   }
 }

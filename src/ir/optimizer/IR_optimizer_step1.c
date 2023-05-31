@@ -24,31 +24,31 @@ static struct ir_instruction_list* ir_optimize_step1_put_instruction(struct ir_i
 
 struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output, uint64_t current_location, struct ir_instruction_list* input_instructions, struct ir_optimize_data* data) {
   struct ir_instruction_low* instr = ir_get_instruction_low(input_instructions, current_location);
-  if(instr->type == ir_instruction_low_type_mov_offsetout) {
-    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoout.output, data);
+  if(instr->type == ir_instruction_low_type_movoo) {
+    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoo.output, data);
     return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .mov = {
-          .input = instr->data.movoout.input,
+          .input = instr->data.movoo.input,
           .output = (struct ir_instruction_low_location) { .type = mapping->loc.loc.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = mapping->reg } }
         }
       }
     });
-  }else if(instr->type == ir_instruction_low_type_mov_offsetin) {
-    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoin.input, data);
+  }else if(instr->type == ir_instruction_low_type_movoi) {
+    struct ir_optimize_location_mapping* mapping = ir_optimize_get_or_create_mapping(instr->data.movoi.input, data);
     return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
         .mov = {
           .input = (struct ir_instruction_low_location) { .type = mapping->loc.loc.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = mapping->reg } },
-          .output = instr->data.movoin.output
+          .output = instr->data.movoi.output
         }
       }
     });
-  }else if(instr->type == ir_instruction_low_type_mov_offsetinout) {
-    struct ir_optimize_location_mapping* mappingin = ir_optimize_get_or_create_mapping(instr->data.movoinout.input, data);
-    struct ir_optimize_location_mapping* mappingout = ir_optimize_get_or_create_mapping(instr->data.movoinout.output, data);
+  }else if(instr->type == ir_instruction_low_type_movoio) {
+    struct ir_optimize_location_mapping* mappingin = ir_optimize_get_or_create_mapping(instr->data.movoio.input, data);
+    struct ir_optimize_location_mapping* mappingout = ir_optimize_get_or_create_mapping(instr->data.movoio.output, data);
     return ir_optimize_step1_put_instruction(output, data, (struct ir_instruction_low) {
       .type = ir_instruction_low_type_mov,
       .data = {
@@ -59,7 +59,7 @@ struct ir_instruction_list* ir_optimize_step1(struct ir_instruction_list* output
       }
     });
   }else if(instr->type == ir_instruction_low_type_norelso) {
-    bool mapping_removed = ir_optimize_remove_mapping(instr->data.norel.input, data);
+    bool mapping_removed = ir_optimize_remove_mapping(instr->data.norelso.input, data);
     if(mapping_removed) {
       return output;
     }
