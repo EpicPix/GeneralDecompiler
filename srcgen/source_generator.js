@@ -12,10 +12,43 @@ const input = path.resolve(args[0]);
 const output = path.resolve(args[1]);
 
 function runSourceGenerator() {
-    runSourceGenerator_x86_64();
+    runSourceGenerator_ir_level_low();
     runSourceGenerator_ir_level_collapsed();
+    runSourceGenerator_x86_64();
 }
 
+function runSourceGenerator_ir_level_low() {
+    const instructions_ir_level_low = readFile("instructions_ir_level_low");
+    const stream = generateFile("ir", "instructions_ir_level_low_include.h");
+    stream.writeln("enum ir_instruction_low_type {");
+    for(const name of Object.keys(instructions_ir_level_low)) {
+        stream.writeln(`  ir_instruction_low_type_${name},`);
+    }
+    stream.writeln("};");
+    stream.writeln("");
+    stream.writeln("struct ir_instruction_low {");
+    stream.writeln("  enum ir_instruction_low_type type;");
+    stream.writeln("  union {");
+    const type_mappings = { "loc": "ir_instruction_low_location", "locoff": "ir_instruction_low_location_with_offset" };
+    for(const [name, val] of Object.entries(instructions_ir_level_low)) {
+        stream.writeln(`    struct ir_instruction_low_data_${name} {`);
+        const types = val['types'] ?? new Array(val['op'].length).fill("loc");
+        if(val['op'] === "i") {
+            stream.writeln(`      struct ${type_mappings[types[0]]} input;`);
+        }else if(val['op'] === "oi") {
+            stream.writeln(`      struct ${type_mappings[types[0]]} output;`);
+            stream.writeln(`      struct ${type_mappings[types[1]]} input;`);
+        }else if(val['op'] === "oii") {
+            stream.writeln(`      struct ${type_mappings[types[0]]} output;`);
+            stream.writeln(`      struct ${type_mappings[types[1]]} inputa;`);
+            stream.writeln(`      struct ${type_mappings[types[2]]} inputb;`);
+        }
+        stream.writeln(`    } ${name};`);
+    }
+    stream.writeln("  } data;");
+    stream.writeln("};");
+    stream.close();
+}
 
 function runSourceGenerator_ir_level_collapsed() {
     const instructions_ir_level_collapsed = readFile("instructions_ir_level_collapsed");
@@ -62,6 +95,7 @@ function runSourceGenerator_ir_level_collapsed() {
 
     streamp.writeln("  }");
     streamp.writeln("}");
+    streamp.close();
     stream.close();
 }
 

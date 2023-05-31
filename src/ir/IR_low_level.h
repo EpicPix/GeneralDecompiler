@@ -18,16 +18,6 @@ enum ir_instruction_low_location_type {
     ir_instruction_low_location_type_address,
 };
 
-enum ir_instruction_low_type {
-    ir_instruction_low_type_mov,
-    ir_instruction_low_type_movoio,
-    ir_instruction_low_type_movoo,
-    ir_instruction_low_type_movoi,
-    ir_instruction_low_type_add,
-    ir_instruction_low_type_mul,
-    ir_instruction_low_type_norelso,
-};
-
 struct ir_instruction_low_location {
     ir_type_t type;
     enum ir_instruction_low_location_type location_type;
@@ -43,40 +33,7 @@ struct ir_instruction_low_location_with_offset {
     struct ir_instruction_low_location offset;
 };
 
-struct ir_instruction_low {
-    enum ir_instruction_low_type type;
-    union {
-        struct ir_instruction_low_data_mov {
-            struct ir_instruction_low_location output;
-            struct ir_instruction_low_location input;
-        } mov;
-        struct ir_instruction_low_data_mov_offsetout {
-            struct ir_instruction_low_location_with_offset output;
-            struct ir_instruction_low_location input;
-        } movoo;
-        struct ir_instruction_low_data_mov_offsetin {
-            struct ir_instruction_low_location output;
-            struct ir_instruction_low_location_with_offset input;
-        } movoi;
-        struct ir_instruction_low_data_mov_offsetinout {
-            struct ir_instruction_low_location_with_offset output;
-            struct ir_instruction_low_location_with_offset input;
-        } movoio;
-        struct ir_instruction_low_data_add {
-            struct ir_instruction_low_location inputa;
-            struct ir_instruction_low_location inputb;
-            struct ir_instruction_low_location output;
-        } add;
-        struct ir_instruction_low_data_mul {
-            struct ir_instruction_low_location inputa;
-            struct ir_instruction_low_location inputb;
-            struct ir_instruction_low_location output;
-        } mul;
-        struct ir_instruction_low_data_norelso {
-            struct ir_instruction_low_location_with_offset input;
-        } norelso;
-    } data;
-};
+#include "generated/instructions_ir_level_low_include.h"
 
 bool ir_instruction_compare_locations_low(struct ir_instruction_low_location location_a, struct ir_instruction_low_location location_b);
 bool ir_instruction_compare_locations_with_offset_low(struct ir_instruction_low_location_with_offset location_a, struct ir_instruction_low_location_with_offset location_b);
