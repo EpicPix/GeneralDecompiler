@@ -20,6 +20,10 @@ function runSourceGenerator() {
 function runSourceGenerator_ir_level_collapsed() {
     const instructions_ir_level_collapsed = readFile("instructions_ir_level_collapsed");
     const stream = generateFile("ir", "instructions_ir_level_collapsed_include.h");
+    const streamp = generateFile("ir", "instructions_ir_level_collapsed_print_include.h");
+
+    streamp.writeln("static void ir_print_instruction_collapsed_inl(struct ir_instruction_collapsed* instr) {");
+    streamp.writeln(`  switch(instr->type) {`);
 
     stream.writeln("enum ir_instruction_collapsed_type {");
     for(const name of Object.keys(instructions_ir_level_collapsed)) {
@@ -32,18 +36,32 @@ function runSourceGenerator_ir_level_collapsed() {
     stream.writeln("  union {");
     for(const [name, data] of Object.entries(instructions_ir_level_collapsed)) {
         stream.writeln(`    struct ir_instruction_collapsed_data_${name} {`);
+        streamp.writeln(`  case ir_instruction_collapsed_type_${name}:`);
+        streamp.writeln(`    printf("${name} ");`);
         if(data['op'] === "oi") {
-            stream.writeln(`      struct ir_instruction_collapsed_location output;`);
-            stream.writeln(`      struct ir_instruction_collapsed_location input;`);
+            stream.writeln("      struct ir_instruction_collapsed_location output;");
+            stream.writeln("      struct ir_instruction_collapsed_location input;");
+            streamp.writeln(`    ir_print_instruction_collapsed_location(&instr->data.${name}.output);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ir_print_instruction_collapsed_location(&instr->data.${name}.input);`);
         }else if(data['op'] === 'oii') {
-            stream.writeln(`      struct ir_instruction_collapsed_location output;`);
-            stream.writeln(`      struct ir_instruction_collapsed_location inputa;`);
-            stream.writeln(`      struct ir_instruction_collapsed_location inputb;`);
+            stream.writeln("      struct ir_instruction_collapsed_location output;");
+            stream.writeln("      struct ir_instruction_collapsed_location inputa;");
+            stream.writeln("      struct ir_instruction_collapsed_location inputb;");
+            streamp.writeln(`    ir_print_instruction_collapsed_location(&instr->data.${name}.output);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ir_print_instruction_collapsed_location(&instr->data.${name}.inputa);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ir_print_instruction_collapsed_location(&instr->data.${name}.inputb);`);
         }
+        streamp.writeln(`    break;`);
         stream.writeln(`    } ${name};`);
     }
     stream.writeln("  } data;");
     stream.writeln("};");
+
+    streamp.writeln("  }");
+    streamp.writeln("}");
     stream.close();
 }
 

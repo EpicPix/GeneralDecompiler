@@ -346,28 +346,7 @@ static void ir_print_instruction_collapsed_location(struct ir_instruction_collap
   }
 }
 
-static void ir_print_instruction_collapsed_inl(struct ir_instruction_collapsed* instr) {
-  if(instr->type == ir_instruction_collapsed_type_mov) {
-    printf("mov ");
-    ir_print_instruction_collapsed_location(&instr->data.mov.output);
-    printf(", ");
-    ir_print_instruction_collapsed_location(&instr->data.mov.input);
-  }else if(instr->type == ir_instruction_collapsed_type_add) {
-    printf("add ");
-    ir_print_instruction_collapsed_location(&instr->data.add.output);
-    printf(", ");
-    ir_print_instruction_collapsed_location(&instr->data.add.inputa);
-    printf(", ");
-    ir_print_instruction_collapsed_location(&instr->data.add.inputb);
-  }else if(instr->type == ir_instruction_collapsed_type_mul) {
-    printf("mul ");
-    ir_print_instruction_collapsed_location(&instr->data.mul.output);
-    printf(", ");
-    ir_print_instruction_collapsed_location(&instr->data.mul.inputa);
-    printf(", ");
-    ir_print_instruction_collapsed_location(&instr->data.mul.inputb);
-  }
-}
+#include "generated/instructions_ir_level_collapsed_print_include.h"
 
 static void ir_print_instruction_collapsed(uint64_t addr, struct ir_instruction_collapsed* instr) {
   printf("0x%016lx: ", addr);
