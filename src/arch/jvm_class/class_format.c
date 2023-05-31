@@ -478,6 +478,26 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
             }
         });
         continue;
+      }else if(opcode == 0x64) { // isub
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_sub, .data = {
+              .oii = {
+                .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+                .inputa = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+                .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+              }
+            }
+        });
+        continue;
+      }else if(opcode == 0x68) { // imul
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_mul, .data = {
+              .oii = {
+                .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+                .inputa = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+                .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
+              }
+            }
+        });
+        continue;
       }
       ARCH_LOG("Unknown opcode 0x%02x, stopping generation", opcode);
       break;
