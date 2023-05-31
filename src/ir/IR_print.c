@@ -109,46 +109,7 @@ static void ir_print_instruction_low_location_offset(struct ir_instruction_low_l
   printf(")");
 }
 
-static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {
-  if(instr->type == ir_instruction_low_type_mov) {
-    printf("mov ");
-    ir_print_instruction_low_location(&instr->data.mov.output);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.mov.input);
-  }else if(instr->type == ir_instruction_low_type_movoo) {
-    printf("movoo ");
-    ir_print_instruction_low_location_offset(&instr->data.movoo.output);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.movoo.input);
-  }else if(instr->type == ir_instruction_low_type_movoi) {
-    printf("movoi ");
-    ir_print_instruction_low_location(&instr->data.movoi.output);
-    printf(", ");
-    ir_print_instruction_low_location_offset(&instr->data.movoi.input);
-  }else if(instr->type == ir_instruction_low_type_movoio) {
-    printf("movoio ");
-    ir_print_instruction_low_location_offset(&instr->data.movoio.output);
-    printf(", ");
-    ir_print_instruction_low_location_offset(&instr->data.movoio.input);
-  }else if(instr->type == ir_instruction_low_type_add) {
-    printf("add ");
-    ir_print_instruction_low_location(&instr->data.add.output);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.add.inputa);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.add.inputb);
-  }else if(instr->type == ir_instruction_low_type_mul) {
-    printf("mul ");
-    ir_print_instruction_low_location(&instr->data.add.output);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.add.inputa);
-    printf(", ");
-    ir_print_instruction_low_location(&instr->data.add.inputb);
-  }else if(instr->type == ir_instruction_low_type_norelso) {
-    printf("norel ");
-    ir_print_instruction_low_location_offset(&instr->data.norelso.input);
-  }
-}
+#include "generated/instructions_ir_level_low_print_include.h"
 
 static void ir_print_instruction_low(uint64_t addr, struct ir_instruction_low* instr) {
   printf("0x%016lx: ", addr);

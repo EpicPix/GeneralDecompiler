@@ -20,6 +20,10 @@ function runSourceGenerator() {
 function runSourceGenerator_ir_level_low() {
     const instructions_ir_level_low = readFile("instructions_ir_level_low");
     const stream = generateFile("ir", "instructions_ir_level_low_include.h");
+    const streamp = generateFile("ir", "instructions_ir_level_low_print_include.h");
+    streamp.writeln("static void ir_print_instruction_low_inl(struct ir_instruction_low* instr) {");
+    streamp.writeln(`  switch(instr->type) {`);
+
     stream.writeln("enum ir_instruction_low_type {");
     for(const name of Object.keys(instructions_ir_level_low)) {
         stream.writeln(`  ir_instruction_low_type_${name},`);
@@ -30,24 +34,40 @@ function runSourceGenerator_ir_level_low() {
     stream.writeln("  enum ir_instruction_low_type type;");
     stream.writeln("  union {");
     const type_mappings = { "loc": "ir_instruction_low_location", "locoff": "ir_instruction_low_location_with_offset" };
+    const print_type_mappings = { "loc": "ir_print_instruction_low_location", "locoff": "ir_print_instruction_low_location_offset" };
     for(const [name, val] of Object.entries(instructions_ir_level_low)) {
+        streamp.writeln(`  case ir_instruction_low_type_${name}:`);
+        streamp.writeln(`    printf("${name} ");`);
         stream.writeln(`    struct ir_instruction_low_data_${name} {`);
         const types = val['types'] ?? new Array(val['op'].length).fill("loc");
         if(val['op'] === "i") {
             stream.writeln(`      struct ${type_mappings[types[0]]} input;`);
+            streamp.writeln(`    ${print_type_mappings[types[0]]}(&instr->data.${name}.input);`);
         }else if(val['op'] === "oi") {
             stream.writeln(`      struct ${type_mappings[types[0]]} output;`);
             stream.writeln(`      struct ${type_mappings[types[1]]} input;`);
+            streamp.writeln(`    ${print_type_mappings[types[0]]}(&instr->data.${name}.output);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ${print_type_mappings[types[1]]}(&instr->data.${name}.input);`);
         }else if(val['op'] === "oii") {
             stream.writeln(`      struct ${type_mappings[types[0]]} output;`);
             stream.writeln(`      struct ${type_mappings[types[1]]} inputa;`);
             stream.writeln(`      struct ${type_mappings[types[2]]} inputb;`);
+            streamp.writeln(`    ${print_type_mappings[types[0]]}(&instr->data.${name}.output);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ${print_type_mappings[types[1]]}(&instr->data.${name}.inputa);`);
+            streamp.writeln('    printf(", ");');
+            streamp.writeln(`    ${print_type_mappings[types[2]]}(&instr->data.${name}.inputb);`);
         }
         stream.writeln(`    } ${name};`);
+        streamp.writeln(`    break;`);
     }
     stream.writeln("  } data;");
     stream.writeln("};");
     stream.close();
+    streamp.writeln("  }");
+    streamp.writeln("}");
+    streamp.close();
 }
 
 function runSourceGenerator_ir_level_collapsed() {
