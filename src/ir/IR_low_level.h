@@ -6,8 +6,9 @@
 #include "IR_type.h"
 
 enum ir_instruction_low_special_registers {
-    ir_instruction_low_special_registers_stack = -1,
-    ir_instruction_low_special_registers_temp_start = -2,
+    ir_instruction_low_special_registers_base_stack = -1,
+    ir_instruction_low_special_registers_stack = -2,
+    ir_instruction_low_special_registers_temp_start = -10,
     ir_instruction_low_special_registers_mappings_start = -1000000,
 };
 

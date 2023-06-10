@@ -24,6 +24,8 @@ struct ir_decompiled_register_definitions {
 
 static bool ir_decompiled_define_register(struct ir_instruction_collapsed_location loc, struct ir_decompiled_register_definitions** defs) {
   if(loc.location_type != ir_instruction_collapsed_location_type_register) return false;
+  if(loc.data.reg == (uint64_t) ir_instruction_low_special_registers_base_stack) return true;
+  if(loc.data.reg == (uint64_t) ir_instruction_low_special_registers_stack) return true;
   if(!*defs) {
     *defs = malloc(sizeof(struct ir_decompiled_register_definitions));
     (*defs)->reg = loc.data.reg;
@@ -45,15 +47,30 @@ static bool ir_decompiled_define_register(struct ir_instruction_collapsed_locati
 
 static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* instr, struct ir_decompiled_register_definitions** defs);
 
+static void ir_decompiled_print_register_name(uint64_t reg) {
+  if(reg == (uint64_t) ir_instruction_low_special_registers_base_stack) {
+    printf("rbp");
+    return;
+  }
+  if(reg == (uint64_t) ir_instruction_low_special_registers_stack) {
+    printf("rsp");
+    return;
+  }
+  if(reg >> 63) {
+    printf("rx%ld", -reg);
+  }else {
+    printf("r%ld", reg);
+  }
+}
+
 static void ir_decompiled_print_location(struct ir_instruction_collapsed_location loc, struct ir_decompiled_register_definitions** defs) {
   if(loc.location_type == ir_instruction_collapsed_location_type_immediate) {
     printf("%ld", loc.data.imm);
   }else if(loc.location_type == ir_instruction_collapsed_location_type_register) {
-    if(loc.data.reg >> 63) {
-      printf("rx%ld", -loc.data.reg);
-    }else {
-      printf("r%ld", loc.data.reg);
-    }
+    ir_decompiled_print_register_name(loc.data.reg);
+  }else if(loc.location_type == ir_instruction_collapsed_location_type_register_address) {
+    printf("*");
+    ir_decompiled_print_register_name(loc.data.reg);
   }else if(loc.location_type == ir_instruction_collapsed_location_type_inlined) {
     printf("(");
     ir_decompiled_print_instruction(loc.data.instr, defs);
@@ -61,29 +78,38 @@ static void ir_decompiled_print_location(struct ir_instruction_collapsed_locatio
   }
 }
 
+static void ir_decompiled_print_instruction_assign(struct ir_instruction_collapsed_location* instr, struct ir_decompiled_register_definitions** defs) {
+  if(instr->location_type == ir_instruction_collapsed_location_type_register_address) {
+    printf("*((%s*) ", ir_decompiled_get_type_name(instr->type));
+    struct ir_instruction_collapsed_location inst = *instr;
+    inst.location_type = ir_instruction_collapsed_location_type_register;
+    ir_decompiled_print_location(inst, defs);
+    printf(")");
+  }else {
+    if (!ir_decompiled_define_register(*instr, defs)) printf("%s ", ir_decompiled_get_type_name(instr->type));
+    ir_decompiled_print_location(*instr, defs);
+  }
+}
+
 static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* instr, struct ir_decompiled_register_definitions** defs) {
   if(instr->type == ir_instruction_collapsed_type_mov) {
-    if(!ir_decompiled_define_register(instr->data.mov.output, defs)) printf("%s ", ir_decompiled_get_type_name(instr->data.mov.output.type));
-    ir_decompiled_print_location(instr->data.mov.output, defs);
+    ir_decompiled_print_instruction_assign(&instr->data.mov.output, defs);
     printf(" = ");
     ir_decompiled_print_location(instr->data.mov.input, defs);
   }else if(instr->type == ir_instruction_collapsed_type_add) {
-    if(!ir_decompiled_define_register(instr->data.add.output, defs)) printf("%s ", ir_decompiled_get_type_name(instr->data.add.output.type));
-    ir_decompiled_print_location(instr->data.add.output, defs);
+    ir_decompiled_print_instruction_assign(&instr->data.add.output, defs);
     printf(" = ");
     ir_decompiled_print_location(instr->data.add.inputa, defs);
     printf(" + ");
     ir_decompiled_print_location(instr->data.add.inputb, defs);
   }else if(instr->type == ir_instruction_collapsed_type_sub) {
-    if(!ir_decompiled_define_register(instr->data.sub.output, defs)) printf("%s ", ir_decompiled_get_type_name(instr->data.sub.output.type));
-    ir_decompiled_print_location(instr->data.sub.output, defs);
+    ir_decompiled_print_instruction_assign(&instr->data.sub.output, defs);
     printf(" = ");
     ir_decompiled_print_location(instr->data.sub.inputa, defs);
     printf(" - ");
     ir_decompiled_print_location(instr->data.sub.inputb, defs);
   }else if(instr->type == ir_instruction_collapsed_type_mul) {
-    if(!ir_decompiled_define_register(instr->data.mul.output, defs)) printf("%s ", ir_decompiled_get_type_name(instr->data.mul.output.type));
-    ir_decompiled_print_location(instr->data.mul.output, defs);
+    ir_decompiled_print_instruction_assign(&instr->data.mul.output, defs);
     printf(" = ");
     ir_decompiled_print_location(instr->data.mul.inputa, defs);
     printf(" * ");

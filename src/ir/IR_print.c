@@ -33,6 +33,8 @@ static void ir_print_instruction_high_location(struct ir_instruction_high_locati
     printf("*0x%016lx", location->data.addr);
   }else if(location->location_type == ir_instruction_high_location_type_register) {
     printf("@%ld", location->data.reg);
+  }else if(location->location_type == ir_instruction_high_location_type_register_address) {
+    printf("*@%ld", location->data.reg);
   }else if(location->location_type == ir_instruction_high_location_type_instruction) {
     printf("<");
     ir_print_instruction_high_inl(location->data.instr);
@@ -53,6 +55,13 @@ static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
     ir_print_instruction_high_location(&instr->data.o.output);
   }else if(instr->type == ir_instruction_high_type_add) {
     printf("add ");
+    ir_print_instruction_high_location(&instr->data.oii.output);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputa);
+    printf(", ");
+    ir_print_instruction_high_location(&instr->data.oii.inputb);
+  }else if(instr->type == ir_instruction_high_type_sub) {
+    printf("sub ");
     ir_print_instruction_high_location(&instr->data.oii.output);
     printf(", ");
     ir_print_instruction_high_location(&instr->data.oii.inputa);
@@ -129,6 +138,8 @@ static void ir_print_instruction_collapsed_location(struct ir_instruction_collap
     printf("*0x%016lx", location->data.addr);
   }else if(location->location_type == ir_instruction_collapsed_location_type_register) {
     printf("@%ld", location->data.reg);
+  }else if(location->location_type == ir_instruction_collapsed_location_type_register_address) {
+    printf("*@%ld", location->data.reg);
   }else if(location->location_type == ir_instruction_collapsed_location_type_inlined) {
     printf("<");
     ir_print_instruction_collapsed_inl(location->data.instr);

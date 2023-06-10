@@ -15,14 +15,20 @@ static struct ir_instruction_low_location ir_lower_level_unpack_location(struct 
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = high_location.data.imm } };
   if(high_location.location_type == ir_instruction_high_location_type_register)
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = high_location.data.reg } };
+  if(high_location.location_type == ir_instruction_high_location_type_register_address)
+    return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = high_location.data.reg } };
   if(high_location.location_type == ir_instruction_high_location_type_address)
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_address, .data = { .addr = high_location.data.addr } };
   if(high_location.location_type == ir_instruction_high_location_type_inherited)
     return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = translation_data->current_temp_register } };
 
-  // high_location.location_type is ir_instruction_high_location_type_instruction
-  *output_instructions = ir_lower_level_unpack_instruction(high_location.data.instr, *output_instructions, type_table, translation_data);
-  return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = translation_data->current_temp_register-- } };
+  if(high_location.location_type == ir_instruction_high_location_type_instruction) {
+    *output_instructions = ir_lower_level_unpack_instruction(high_location.data.instr, *output_instructions, type_table, translation_data);
+    return (struct ir_instruction_low_location){ .type = high_location.type, .location_type = ir_instruction_low_location_type_register, .data = { .reg = translation_data->current_temp_register-- } };
+  }
+
+  DEBUG_LOG("ir", "Failed to unpack an instruction type: %d", high_location.location_type);
+  exit(1);
 }
 
 static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_instruction_high* high_instruction, struct ir_instruction_list* output_instructions, struct ir_type_table* type_table, struct ir_level_translation_data* translation_data) {
