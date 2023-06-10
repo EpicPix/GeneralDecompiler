@@ -10,6 +10,7 @@ enum ir_instruction_low_special_registers {
     ir_instruction_low_special_registers_stack = -2,
     ir_instruction_low_special_registers_temp_start = -10,
     ir_instruction_low_special_registers_mappings_start = -1000000,
+    ir_instruction_low_special_registers_high_temp_start = -2000000,
 };
 
 enum ir_instruction_low_location_type {

@@ -392,6 +392,8 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
 
   instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_u64, ir_instruction_low_special_registers_base_stack), IR_HIGH_DATA_REG(ir_type_u64, ir_instruction_low_special_registers_stack)));
 
+  uint64_t tmp_reg = ir_instruction_low_special_registers_high_temp_start;
+
   for(int i = 0; i<cf->method_count; i++) {
     struct jvm_class_prepared_method* method = &cf->methods[i];
     ARCH_LOG("Generating IR for method '%s' with descriptor '%s'", method->name->bytes, method->descriptor->bytes);
@@ -482,37 +484,52 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
         instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
         continue;
       }else if(opcode == 0x60) { // iadd
-        // TODO
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_add, .data = {
-              .oii = {
-                .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputa = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-              }
-            }
-        });
+        uint64_t reg_a = tmp_reg--;
+        uint64_t reg_b = tmp_reg--;
+        uint64_t reg_c = tmp_reg--;
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_b), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, reg_c), IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG(ir_type_s32, reg_b)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_sub, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, reg_c)));
         continue;
       }else if(opcode == 0x64) { // isub
-        // TODO
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_sub, .data = {
-              .oii = {
-                .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputa = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-              }
-            }
-        });
+        uint64_t reg_a = tmp_reg--;
+        uint64_t reg_b = tmp_reg--;
+        uint64_t reg_c = tmp_reg--;
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_b), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_sub, IR_HIGH_DATA_REG(ir_type_s32, reg_c), IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG(ir_type_s32, reg_b)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_sub, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, reg_c)));
         continue;
       }else if(opcode == 0x68) { // imul
-        // TODO
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_mul, .data = {
-              .oii = {
-                .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_push, .data = { .i = { .input = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputa = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-                .inputb = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_instruction, .data = { .instr = ir_instruction_alloc_high((struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_inherited } } } }) } },
-              }
-            }
-        });
+        uint64_t reg_a = tmp_reg--;
+        uint64_t reg_b = tmp_reg--;
+        uint64_t reg_c = tmp_reg--;
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_b), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_mul, IR_HIGH_DATA_REG(ir_type_s32, reg_c), IR_HIGH_DATA_REG(ir_type_s32, reg_a), IR_HIGH_DATA_REG(ir_type_s32, reg_b)));
+
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_sub, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, reg_c)));
         continue;
       }
       ARCH_LOG("Unknown opcode 0x%02x, stopping generation", opcode);
