@@ -94,7 +94,7 @@ static void ir_decompiled_print_instruction(struct ir_instruction_collapsed* ins
 void ir_decompiled_print(struct ir_data data) {
   if(data.instruction_level != ir_instruction_level_collapsed) return;
 
-  struct ir_decompiled_register_definitions* defs;
+  struct ir_decompiled_register_definitions* defs = NULL;
 
   struct ir_instruction_list* instructions = data.instructions;
   while(instructions) {
