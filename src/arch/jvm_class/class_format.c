@@ -465,7 +465,8 @@ static struct ir_data arch_generate_ir(void* prepared_data) {
           ARCH_LOG("Not enough data for opcode 0x%02x, stopping generation", opcode);
           break;
         }
-        instructions = ir_instruction_add_instruction_high(instructions, 1024, (struct ir_instruction_high) { .type = ir_instruction_high_type_pop, .data = { .o = { .output = { .type = ir_type_s32, .location_type = ir_instruction_high_location_type_register, .data = { .reg = code->code[++x] } } } } });
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, code->code[++x]), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));
+        instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OII(ir_instruction_high_type_add, IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_REG(ir_type_s32, ir_instruction_low_special_registers_stack), IR_HIGH_DATA_IMM(ir_type_s32, 4)));
         continue;
       }else if(opcode == 0x3b) { // istore_0
         instructions = ir_instruction_add_instruction_high(instructions, 1024, IR_HIGH_INSTR_OI(ir_instruction_high_type_mov, IR_HIGH_DATA_REG(ir_type_s32, 0), IR_HIGH_DATA_REG_ADDR(ir_type_s32, ir_instruction_low_special_registers_stack)));

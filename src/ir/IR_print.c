@@ -47,13 +47,7 @@ static void ir_print_instruction_high_location(struct ir_instruction_high_locati
 }
 
 static void ir_print_instruction_high_inl(struct ir_instruction_high* instr) {
-  if(instr->type == ir_instruction_high_type_push) {
-    printf("push ");
-    ir_print_instruction_high_location(&instr->data.i.input);
-  }else if(instr->type == ir_instruction_high_type_pop) {
-    printf("pop ");
-    ir_print_instruction_high_location(&instr->data.o.output);
-  }else if(instr->type == ir_instruction_high_type_add) {
+  if(instr->type == ir_instruction_high_type_add) {
     printf("add ");
     ir_print_instruction_high_location(&instr->data.oii.output);
     printf(", ");

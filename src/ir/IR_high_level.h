@@ -29,8 +29,6 @@ struct ir_instruction_high_location {
 };
 
 enum ir_instruction_high_type {
-  ir_instruction_high_type_pop,
-  ir_instruction_high_type_push,
   ir_instruction_high_type_add,
   ir_instruction_high_type_sub,
   ir_instruction_high_type_mul,

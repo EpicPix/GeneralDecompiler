@@ -83,45 +83,6 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
         }
       });
     output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
-  }else if(high_instruction->type == ir_instruction_high_type_pop) {
-    struct ir_instruction_high_data_i data = high_instruction->data.i;
-    struct ir_instruction_low_location_with_offset lo =
-      {
-        .loc = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-        .offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
-      };
-    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
-      {
-        .type = ir_instruction_low_type_movoi,
-        .data = {
-          .movoi = {
-            .output = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data),
-            .input = lo
-          }
-        }
-      });
-    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
-      {
-        .type = ir_instruction_low_type_norelso,
-        .data = { .norelso = { .input = lo } }
-      });
-    translation_data->stack_data += (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
-  }else if(high_instruction->type == ir_instruction_high_type_push) {
-    struct ir_instruction_high_data_i data = high_instruction->data.i;
-    translation_data->stack_data -= (ir_type_bit_size(data.input.type, type_table) + 7) >> 3;
-    output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
-      {
-        .type = ir_instruction_low_type_movoo,
-        .data = {
-          .movoo = {
-            .output = {
-              .loc = { .type = data.input.type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-              .offset = { .type = data.input.type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
-            },
-            .input = ir_lower_level_unpack_location(data.input, &output_instructions, type_table, translation_data)
-          }
-        }
-      });
   }else if(high_instruction->type == ir_instruction_high_type_mov) {
     struct ir_instruction_high_data_oi data = high_instruction->data.oi;
     struct ir_instruction_list* temporary_instructions = ir_instruction_create_temp_list(ir_instruction_level_low);
