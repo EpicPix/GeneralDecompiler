@@ -38,7 +38,7 @@ enum ir_instruction_high_type {
 };
 
 enum ir_instruction_high_type_intrinsics {
-    ir_instruction_high_type_intrinsic_jvm_dup,
+    ir_instruction_high_type_intrinsic_unused,
 };
 
 struct ir_instruction_high {

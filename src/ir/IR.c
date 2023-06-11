@@ -99,27 +99,6 @@ static struct ir_instruction_list* ir_lower_level_unpack_instruction(struct ir_i
     output_instructions = ir_instruction_move_and_destroy_list(output_instructions, temporary_instructions, ir_instruction_level_low);
   }else if(high_instruction->type == ir_instruction_high_type_intrinsic) {
   }else if(high_instruction->type == ir_instruction_high_type_intrinsic_typed) {
-    if(high_instruction->data.intrinsic_typed.intrinsic == ir_instruction_high_type_intrinsic_jvm_dup) {
-      ir_type_t type = high_instruction->data.intrinsic_typed.type;
-      uint64_t off = (ir_type_bit_size(type, type_table) + 7) >> 3;
-      output_instructions = ir_instruction_add_instruction_low(output_instructions, 1024, (struct ir_instruction_low)
-        {
-          .type = ir_instruction_low_type_movoio,
-          .data = {
-            .movoio = {
-              .output = {
-                .loc = { .type = type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-                .offset = { .type = type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data - off } }
-              },
-              .input = {
-                .loc = { .type = type, .location_type = ir_instruction_low_location_type_register_address, .data = { .reg = ir_instruction_low_special_registers_stack } },
-                .offset = { .type = type, .location_type = ir_instruction_low_location_type_immediate, .data = { .imm = translation_data->stack_data } }
-              }
-            }
-          }
-        });
-      translation_data->stack_data -= off;
-    }
   }
   return output_instructions;
 }
