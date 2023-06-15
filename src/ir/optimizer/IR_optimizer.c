@@ -24,8 +24,9 @@ struct ir_data ir_optimize(struct ir_data data) {
   struct ir_optimize_data optimizer_data = { };
 
   double start = get_app_time();
-  DEBUG_LOG("ir_optimizer", "%s \"%s\"", "Running optimization step", "empty");
-  struct ir_instruction_list* instructions_step_empty = ir_optimize_run_step(ir_optimize_step_empty, data.instructions, &optimizer_data);
+  DEBUG_LOG("ir_optimizer", "%s \"%s\"", "Running optimization step", "stack");
+  struct ir_instruction_list* instructions_step_empty = ir_optimize_run_step(ir_optimize_step_stack, data.instructions,
+                                                                             &optimizer_data);
   DEBUG_LOG("ir_optimizer", "Optimizations finished, took %.6lf seconds for all optimizations", get_app_time() - start);
 
   return (struct ir_data) {
